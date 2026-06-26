@@ -51,11 +51,7 @@ export default function PrimaryButton({
     >
       {loading ? (
         <>
-          <svg
-            className="h-5 w-5 animate-spin"
-            viewBox="0 0 24 24"
-            fill="none"
-          >
+          <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none">
             <circle
               className="opacity-25"
               cx="12"
@@ -70,7 +66,6 @@ export default function PrimaryButton({
               d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
             />
           </svg>
-
           Loading...
         </>
       ) : (

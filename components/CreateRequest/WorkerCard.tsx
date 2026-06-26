@@ -39,26 +39,16 @@ export default function WorkerCard({
             }`}
           >
             {orange ? (
-              <Hammer
-                size={24}
-                className="text-orange-500"
-              />
+              <Hammer size={24} className="text-orange-500" />
             ) : (
-              <BriefcaseBusiness
-                size={24}
-                className="text-slate-500"
-              />
+              <BriefcaseBusiness size={24} className="text-slate-500" />
             )}
           </motion.div>
 
           <div>
-            <h3 className="text-3xl font-bold text-neutral-900">
-              {title}
-            </h3>
+            <h3 className="text-3xl font-bold text-neutral-900">{title}</h3>
 
-            <p className="mt-1 text-sm text-neutral-500">
-              {subtitle}
-            </p>
+            <p className="mt-1 text-sm text-neutral-500">{subtitle}</p>
           </div>
         </div>
 
@@ -75,15 +65,10 @@ export default function WorkerCard({
             whileHover={{
               backgroundColor: "#FFF4ED",
             }}
-            onClick={() =>
-              setCount((c) => Math.max(0, c - 1))
-            }
+            onClick={() => setCount((c) => Math.max(0, c - 1))}
             className="flex h-12 w-12 items-center justify-center rounded-full bg-white"
           >
-            <Minus
-              size={18}
-              className="text-orange-500"
-            />
+            <Minus size={18} className="text-orange-500" />
           </motion.button>
 
           {/* Count */}
@@ -124,9 +109,7 @@ export default function WorkerCard({
             whileHover={{
               scale: 1.08,
             }}
-            onClick={() =>
-              setCount((c) => c + 1)
-            }
+            onClick={() => setCount((c) => c + 1)}
             className="flex h-12 w-12 items-center justify-center rounded-full bg-orange-500 text-white shadow-lg"
           >
             <Plus size={18} />

@@ -8,7 +8,6 @@ import LoginCard from "@/components/auth/LoginCard";
 export default function LoginPage() {
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#f5f6f8]">
-
       {/* Background Glow */}
       <motion.div
         animate={{
@@ -38,9 +37,7 @@ export default function LoginPage() {
 
       {/* Content */}
       <div className="relative z-10 flex min-h-screen items-center justify-center px-5">
-
         <div className="w-full max-w-md">
-
           {/* Logo */}
 
           <motion.div
@@ -77,11 +74,8 @@ export default function LoginPage() {
           >
             <LoginCard />
           </motion.div>
-
         </div>
-
       </div>
-
     </div>
   );
 }

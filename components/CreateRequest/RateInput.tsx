@@ -28,9 +28,7 @@ export default function RateInput({
     >
       {/* Header */}
       <div className="mb-5 flex items-center justify-between">
-        <h3 className="font-semibold text-lg text-neutral-900">
-          {title}
-        </h3>
+        <h3 className="font-semibold text-lg text-neutral-900">{title}</h3>
 
         <motion.span
           whileHover={{ scale: 1.05 }}

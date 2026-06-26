@@ -65,7 +65,6 @@ export default function HelpPage() {
 
   return (
     <main className="min-h-screen bg-[#F8F9FB] pb-24 relative overflow-hidden">
-
       {/* Background Glow */}
       <div className="absolute top-0 right-0 w-72 h-72 bg-orange-400/10 blur-[120px] rounded-full" />
 
@@ -74,7 +73,6 @@ export default function HelpPage() {
       <CommonHeader title="Help & Support" />
 
       <section className="max-w-md mx-auto px-4 pt-24">
-
         {/* Heading */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
@@ -99,16 +97,11 @@ export default function HelpPage() {
                 className="bg-white rounded-2xl border border-[#E2BFB0] shadow-sm overflow-hidden"
               >
                 <button
-                  onClick={() =>
-                    setOpenIndex(open ? null : index)
-                  }
+                  onClick={() => setOpenIndex(open ? null : index)}
                   className="w-full p-5 flex justify-between items-center"
                 >
                   <div className="flex items-center gap-4">
-                    <Icon
-                      size={24}
-                      className="text-[#5F6C8D]"
-                    />
+                    <Icon size={24} className="text-[#5F6C8D]" />
 
                     <span className="text-2xl font-semibold text-[#1F2937]">
                       {item.title}
@@ -139,9 +132,7 @@ export default function HelpPage() {
                       <div className="px-5 pb-5 space-y-4 border-t border-gray-100">
                         {item.questions.map((faq) => (
                           <div key={faq.q}>
-                            <h3 className="font-semibold">
-                              {faq.q}
-                            </h3>
+                            <h3 className="font-semibold">{faq.q}</h3>
 
                             <p className="mt-1 text-gray-600 text-sm leading-6">
                               {faq.a}
@@ -164,12 +155,9 @@ export default function HelpPage() {
           transition={{ delay: 0.4 }}
           className="mt-10"
         >
-          <h2 className="text-3xl font-bold text-[#1F2937]">
-            Need More Help?
-          </h2>
+          <h2 className="text-3xl font-bold text-[#1F2937]">Need More Help?</h2>
 
           <div className="mt-6 space-y-5">
-
             {/* Call */}
             <motion.a
               whileHover={{ y: -4 }}
@@ -178,19 +166,12 @@ export default function HelpPage() {
               className="block bg-white rounded-3xl border border-[#E2BFB0] shadow-md p-8 text-center"
             >
               <div className="w-16 h-16 rounded-full bg-[#FF5404] mx-auto flex items-center justify-center">
-                <Phone
-                  size={28}
-                  className="text-white"
-                />
+                <Phone size={28} className="text-white" />
               </div>
 
-              <h3 className="mt-5 text-3xl font-bold">
-                Call Us
-              </h3>
+              <h3 className="mt-5 text-3xl font-bold">Call Us</h3>
 
-              <p className="mt-2 text-[#6B7280] font-medium">
-                Available 24/7
-              </p>
+              <p className="mt-2 text-[#6B7280] font-medium">Available 24/7</p>
             </motion.a>
 
             {/* Email */}
@@ -201,21 +182,15 @@ export default function HelpPage() {
               className="block bg-white rounded-3xl border border-[#E2BFB0] shadow-md p-8 text-center"
             >
               <div className="w-16 h-16 rounded-full bg-[#FF5404] mx-auto flex items-center justify-center">
-                <Mail
-                  size={28}
-                  className="text-white"
-                />
+                <Mail size={28} className="text-white" />
               </div>
 
-              <h3 className="mt-5 text-3xl font-bold">
-                Email Support
-              </h3>
+              <h3 className="mt-5 text-3xl font-bold">Email Support</h3>
 
               <p className="mt-2 text-[#6B7280] font-medium">
                 Response within 24h
               </p>
             </motion.a>
-
           </div>
         </motion.div>
 

@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 
-
 import { motion } from "framer-motion";
 import {
   Bookmark,
@@ -115,9 +114,7 @@ export default function ProfilePage() {
             </button>
           </div>
 
-          <h2 className="mt-3 text-3xl font-bold text-[#1F2937]">
-            John Doe
-          </h2>
+          <h2 className="mt-3 text-3xl font-bold text-[#1F2937]">John Doe</h2>
 
           <div className="mt-1.5 flex items-center justify-center gap-2 text-[#6B7280]">
             <Phone size={16} />
@@ -126,7 +123,7 @@ export default function ProfilePage() {
         </motion.div>
 
         {/* Menu Cards */}
-        <div className="mt-6 space-y-2.5" >
+        <div className="mt-6 space-y-2.5">
           {menuItems.map((item, index) => {
             const Icon = item.icon;
 
@@ -178,10 +175,7 @@ export default function ProfilePage() {
                       justify-center
                     "
                   >
-                    <Icon
-                      size={18}
-                      className="text-[#5F6C8D]"
-                    />
+                    <Icon size={18} className="text-[#5F6C8D]" />
                   </div>
 
                   <div className="text-left">
@@ -189,16 +183,11 @@ export default function ProfilePage() {
                       {item.title}
                     </h3>
 
-                    <p className="text-sm text-[#6B7280]">
-                      {item.subtitle}
-                    </p>
+                    <p className="text-sm text-[#6B7280]">{item.subtitle}</p>
                   </div>
                 </div>
 
-                <ChevronRight
-                  size={22}
-                  className="text-[#6B7280]"
-                />
+                <ChevronRight size={22} className="text-[#6B7280]" />
               </motion.button>
             );
           })}

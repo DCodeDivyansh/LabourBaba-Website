@@ -7,7 +7,6 @@ import Image from "next/image";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
 export default function OtpPage() {
-
   const router = useRouter();
 
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
@@ -29,13 +28,9 @@ export default function OtpPage() {
 
   const handleKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement>,
-    index: number
+    index: number,
   ) => {
-    if (
-      e.key === "Backspace" &&
-      !otp[index] &&
-      index > 0
-    ) {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
   };
@@ -44,20 +39,15 @@ export default function OtpPage() {
     <main className="min-h-screen bg-[#F4F6F8]">
       {/* Mobile Container */}
       <div className="relative w-full max-w-md mx-auto min-h-screen flex flex-col overflow-hidden">
-
         {/* Background Glow */}
         <div className="absolute top-0 right-0 w-72 h-72 bg-orange-500/20 blur-[120px] rounded-full pointer-events-none" />
 
         <div className="absolute bottom-0 left-0 w-72 h-72 bg-cyan-400/20 blur-[120px] rounded-full pointer-events-none" />
 
-
         {/* Header */}
         <header className="relative z-10 h-16 bg-white shadow-sm flex items-center px-4">
           <button onClick={() => router.back()}>
-            <ArrowLeft
-              size={24}
-              className="text-[#FF5404]"
-            />
+            <ArrowLeft size={24} className="text-[#FF5404]" />
           </button>
 
           <h1 className="ml-4 text-2xl font-bold text-[#FF5404]">
@@ -109,15 +99,8 @@ export default function OtpPage() {
                   inputMode="numeric"
                   maxLength={1}
                   value={digit}
-                  onChange={(e) =>
-                    handleChange(
-                      e.target.value,
-                      index
-                    )
-                  }
-                  onKeyDown={(e) =>
-                    handleKeyDown(e, index)
-                  }
+                  onChange={(e) => handleChange(e.target.value, index)}
+                  onKeyDown={(e) => handleKeyDown(e, index)}
                   className="
                     aspect-square
                     w-full
@@ -140,9 +123,7 @@ export default function OtpPage() {
 
           {/* Resend */}
           <div className="mt-12 text-center">
-            <p className="text-[#6B7280] text-base">
-              Didn't receive the code?
-            </p>
+            <p className="text-[#6B7280] text-base">Didn't receive the code?</p>
 
             <button className="mt-4 text-[#C05600] font-medium tracking-wide">
               Resend in 00:30

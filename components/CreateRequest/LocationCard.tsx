@@ -1,14 +1,28 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { MapPinned, ChevronRight } from "lucide-react";
 import {
-  MapPinned,
-  ChevronRight,
-} from "lucide-react";
+  getSavedLocation,
+  type SavedLocationData,
+} from "@/lib/location-storage";
 
 export default function LocationCard() {
+  const [savedLocation, setSavedLocation] = useState<SavedLocationData | null>(
+    null,
+  );
+
+  useEffect(() => {
+    const stored = getSavedLocation();
+    setSavedLocation(stored);
+  }, []);
+
   return (
     <motion.div
+      onClick={() => {
+        window.location.href = "/location";
+      }}
       initial={{
         opacity: 0,
         y: 35,
@@ -21,13 +35,13 @@ export default function LocationCard() {
         once: true,
       }}
       transition={{
-        duration: .45,
+        duration: 0.45,
       }}
       whileHover={{
         y: -4,
       }}
       whileTap={{
-        scale: .99,
+        scale: 0.99,
       }}
       className="
       rounded-2xl
@@ -40,11 +54,8 @@ export default function LocationCard() {
       "
     >
       <div className="flex items-center justify-between">
-
         {/* Left */}
-
         <div className="flex items-center gap-4">
-
           <motion.div
             animate={{
               scale: [1, 1.12, 1],
@@ -63,24 +74,18 @@ export default function LocationCard() {
             bg-orange-100
             "
           >
-            <MapPinned
-              size={22}
-              className="text-orange-500"
-            />
+            <MapPinned size={22} className="text-orange-500" />
           </motion.div>
 
           <div>
-
             <h3 className="font-semibold text-lg">
-              Use Current Location
+              {savedLocation ? "Saved Location" : "Select Location"}
             </h3>
 
             <p className="text-sm text-gray-500">
-              123 Main St, Sector 4, City
+              {savedLocation?.address || "123 Main St, Sector 4, City"}
             </p>
-
           </div>
-
         </div>
 
         {/* Arrow */}
@@ -94,12 +99,8 @@ export default function LocationCard() {
             duration: 1.5,
           }}
         >
-          <ChevronRight
-            className="text-gray-500"
-            size={22}
-          />
+          <ChevronRight className="text-gray-500" size={22} />
         </motion.div>
-
       </div>
     </motion.div>
   );

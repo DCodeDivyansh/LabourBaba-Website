@@ -9,13 +9,9 @@ export default function WorkerTrackingCard() {
           />
 
           <div>
-            <h3 className="font-bold">
-              Rajesh M. is arriving
-            </h3>
+            <h3 className="font-bold">Rajesh M. is arriving</h3>
 
-            <p className="text-[#FF5404] text-sm">
-              ETA: 12 mins • Electrician
-            </p>
+            <p className="text-[#FF5404] text-sm">ETA: 12 mins • Electrician</p>
           </div>
         </div>
 
@@ -24,9 +20,7 @@ export default function WorkerTrackingCard() {
 
       <div className="mt-6 flex items-center justify-between text-sm">
         <span>Booked</span>
-        <span className="text-[#FF5404] font-semibold">
-          On the way
-        </span>
+        <span className="text-[#FF5404] font-semibold">On the way</span>
         <span>Arrived</span>
       </div>
     </div>

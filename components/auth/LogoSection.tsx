@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 export default function LogoSection() {
   return (
     <div className="mb-10 text-center">
-
       {/* Animated Logo */}
       <motion.div
         initial={{
@@ -75,7 +74,6 @@ export default function LogoSection() {
         }}
         className="mx-auto mt-4 h-1 rounded-full bg-linear-to-r from-orange-400 via-orange-500 to-green-500"
       />
-
     </div>
   );
 }

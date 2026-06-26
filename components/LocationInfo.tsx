@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  MapPin,
-  Navigation,
-  Globe,
-} from "lucide-react";
+import { MapPin, Navigation, Globe } from "lucide-react";
 
 interface LocationInfoProps {
   position: [number, number];
@@ -20,10 +16,7 @@ export default function LocationInfo({
       {/* Address */}
       <div className="flex items-start gap-3">
         <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center">
-          <MapPin
-            className="text-[#FF5404]"
-            size={22}
-          />
+          <MapPin className="text-[#FF5404]" size={22} />
         </div>
 
         <div className="flex-1">
@@ -41,18 +34,12 @@ export default function LocationInfo({
 
       {/* Coordinates */}
       <div className="grid grid-cols-2 gap-4">
-
         {/* Latitude */}
         <div className="rounded-2xl bg-[#FFF8F5] border border-orange-100 p-4">
           <div className="flex items-center gap-2 mb-2">
-            <Navigation
-              size={18}
-              className="text-[#FF5404]"
-            />
+            <Navigation size={18} className="text-[#FF5404]" />
 
-            <span className="text-sm font-medium text-gray-500">
-              Latitude
-            </span>
+            <span className="text-sm font-medium text-gray-500">Latitude</span>
           </div>
 
           <p className="font-bold text-[#1F2937] text-lg">
@@ -63,29 +50,22 @@ export default function LocationInfo({
         {/* Longitude */}
         <div className="rounded-2xl bg-[#FFF8F5] border border-orange-100 p-4">
           <div className="flex items-center gap-2 mb-2">
-            <Globe
-              size={18}
-              className="text-[#FF5404]"
-            />
+            <Globe size={18} className="text-[#FF5404]" />
 
-            <span className="text-sm font-medium text-gray-500">
-              Longitude
-            </span>
+            <span className="text-sm font-medium text-gray-500">Longitude</span>
           </div>
 
           <p className="font-bold text-[#1F2937] text-lg">
             {position[1].toFixed(6)}
           </p>
         </div>
-
       </div>
 
       {/* Info */}
       <div className="rounded-2xl bg-blue-50 border border-blue-100 p-4">
         <p className="text-sm text-blue-700">
           📍 Drag the marker on the map or tap{" "}
-          <strong>Use Current Location</strong> to
-          update your location.
+          <strong>Use Current Location</strong> to update your location.
         </p>
       </div>
     </div>

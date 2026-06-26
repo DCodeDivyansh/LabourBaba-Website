@@ -5,13 +5,7 @@ import { motion } from "framer-motion";
 import TopNavbar from "@/components/TopNavbar";
 import BottomNav from "@/components/BottomNav";
 
-import {
-  Check,
-  Car,
-  Star,
-  Receipt,
-  Clock,
-} from "lucide-react";
+import { Check, Car, Star, Receipt, Clock } from "lucide-react";
 
 const notifications = [
   {
@@ -28,8 +22,7 @@ const notifications = [
     title: "Worker Arriving",
     time: "15m ago",
     icon: Car,
-    description:
-      "Suresh (Electrician) is arriving in approximately 5 minutes.",
+    description: "Suresh (Electrician) is arriving in approximately 5 minutes.",
     highlight: true,
   },
   {

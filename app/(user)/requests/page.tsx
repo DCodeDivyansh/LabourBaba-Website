@@ -31,11 +31,9 @@ const bookings = [
 export default function RequestsPage() {
   return (
     <main className="min-h-screen bg-[#F8F9FB] pb-24">
-
       <TopNavbar />
 
       <section className="mx-auto max-w-md px-4 pt-20">
-
         {/* Header */}
 
         <motion.div
@@ -48,9 +46,7 @@ export default function RequestsPage() {
             y: 0,
           }}
         >
-          <h1 className="text-2xl font-bold text-slate-900">
-            My Bookings
-          </h1>
+          <h1 className="text-2xl font-bold text-slate-900">My Bookings</h1>
 
           <p className="mt-1 text-sm text-slate-500">
             Track your active and completed labour requests.
@@ -72,7 +68,6 @@ export default function RequestsPage() {
           className="mt-6"
         >
           <div className="flex rounded-xl border border-orange-100 bg-white p-1 shadow-sm">
-
             <button className="flex-1 rounded-lg bg-[#FF5404] py-2 text-sm font-semibold text-white">
               Active (2)
             </button>
@@ -84,16 +79,13 @@ export default function RequestsPage() {
             <button className="flex-1 rounded-lg py-2 text-sm font-medium text-slate-500 transition hover:text-orange-500">
               Cancelled
             </button>
-
           </div>
         </motion.div>
 
         {/* Cards */}
 
         <div className="mt-5 space-y-4">
-
           {bookings.map((booking, index) => (
-
             <motion.div
               key={booking.id}
               initial={{
@@ -110,15 +102,11 @@ export default function RequestsPage() {
             >
               <BookingCard booking={booking} />
             </motion.div>
-
           ))}
-
         </div>
-
       </section>
 
       <BottomNav />
-
     </main>
   );
 }

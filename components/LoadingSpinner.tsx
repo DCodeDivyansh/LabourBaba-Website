@@ -11,15 +11,10 @@ export default function LoadingSpinner({
 }: LoadingSpinnerProps) {
   return (
     <div className="flex flex-col items-center justify-center w-full h-125 rounded-3xl bg-white border border-[#E2BFB0] shadow-lg">
-
       {/* Icon */}
       <div className="relative">
-
         <div className="w-20 h-20 rounded-full bg-orange-100 flex items-center justify-center">
-          <MapPin
-            size={34}
-            className="text-[#FF5404]"
-          />
+          <MapPin size={34} className="text-[#FF5404]" />
         </div>
 
         <Loader2
@@ -36,9 +31,7 @@ export default function LoadingSpinner({
       </div>
 
       {/* Text */}
-      <h2 className="mt-6 text-xl font-semibold text-[#1F2937]">
-        {message}
-      </h2>
+      <h2 className="mt-6 text-xl font-semibold text-[#1F2937]">{message}</h2>
 
       <p className="mt-2 text-gray-500 text-center max-w-xs">
         Please wait while we prepare your map.

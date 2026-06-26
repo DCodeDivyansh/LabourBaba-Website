@@ -1,9 +1,7 @@
 export default function TrustSection() {
   return (
     <div className="bg-[#EEF4FF] rounded-3xl p-6">
-      <h3 className="text-xl font-semibold">
-        Trust & Safety Guaranteed
-      </h3>
+      <h3 className="text-xl font-semibold">Trust & Safety Guaranteed</h3>
 
       <div className="grid grid-cols-3 mt-6 text-center">
         <div>

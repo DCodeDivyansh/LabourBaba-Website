@@ -2,16 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { MapPin, Search, Loader2 } from "lucide-react";
-import {
-  searchLocation,
-  LocationResult,
-} from "@/lib/geocode";
+import { searchLocation, LocationResult } from "@/lib/geocode";
 
 interface SearchLocationProps {
-  onSelectLocation: (
-    position: [number, number],
-    address: string
-  ) => void;
+  onSelectLocation: (position: [number, number], address: string) => void;
 }
 
 export default function SearchLocation({
@@ -44,11 +38,8 @@ export default function SearchLocation({
 
   const handleSelect = (location: LocationResult) => {
     onSelectLocation(
-      [
-        Number(location.lat),
-        Number(location.lon),
-      ],
-      location.display_name
+      [Number(location.lat), Number(location.lon)],
+      location.display_name,
     );
 
     setQuery(location.display_name);
@@ -58,7 +49,6 @@ export default function SearchLocation({
 
   return (
     <div className="relative w-full">
-
       {/* Search Input */}
       <div className="relative">
         <Search
@@ -70,9 +60,7 @@ export default function SearchLocation({
           type="text"
           value={query}
           placeholder="Search location..."
-          onChange={(e) =>
-            setQuery(e.target.value)
-          }
+          onChange={(e) => setQuery(e.target.value)}
           className="
             w-full
             h-14
@@ -117,9 +105,7 @@ export default function SearchLocation({
           {results.map((location, index) => (
             <button
               key={index}
-              onClick={() =>
-                handleSelect(location)
-              }
+              onClick={() => handleSelect(location)}
               className="
                 w-full
                 text-left
@@ -133,14 +119,9 @@ export default function SearchLocation({
                 last:border-none
               "
             >
-              <MapPin
-                size={20}
-                className="text-[#FF5404] mt-1 shrink-0"
-              />
+              <MapPin size={20} className="text-[#FF5404] mt-1 shrink-0" />
 
-              <span className="text-sm leading-6">
-                {location.display_name}
-              </span>
+              <span className="text-sm leading-6">{location.display_name}</span>
             </button>
           ))}
         </div>

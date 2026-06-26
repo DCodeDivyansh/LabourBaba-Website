@@ -39,19 +39,13 @@ export default function ReviewCard({
           />
 
           <div>
-            <h2 className="text-[30px] font-bold text-[#1F2937]">
-              {name}
-            </h2>
+            <h2 className="text-[30px] font-bold text-[#1F2937]">{name}</h2>
 
-            <p className="text-[#5F4B42]">
-              {profession}
-            </p>
+            <p className="text-[#5F4B42]">{profession}</p>
           </div>
         </div>
 
-        <p className="text-sm text-[#5F4B42]">
-          {date}
-        </p>
+        <p className="text-sm text-[#5F4B42]">{date}</p>
       </div>
 
       {/* Rating */}
@@ -71,9 +65,7 @@ export default function ReviewCard({
       </div>
 
       {/* Review */}
-      <p className="mt-5 leading-9 text-[18px] text-[#3A3A3A]">
-        "{review}"
-      </p>
+      <p className="mt-5 leading-9 text-[18px] text-[#3A3A3A]">"{review}"</p>
     </motion.div>
   );
 }

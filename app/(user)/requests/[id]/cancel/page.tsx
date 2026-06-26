@@ -96,9 +96,7 @@ export default function CancelJobPage() {
 
       {/* Bottom Button */}
       <div className="bg-white p-6 shadow-[0_-2px_8px_rgba(0,0,0,0.06)]">
-        <Button
-          title="Confirm Cancellation"
-        />
+        <Button title="Confirm Cancellation" />
       </div>
     </div>
   );

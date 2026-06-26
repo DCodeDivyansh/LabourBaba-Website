@@ -8,10 +8,7 @@ interface MapEventsProps {
   zoom?: number;
 }
 
-export default function MapEvents({
-  position,
-  zoom = 16,
-}: MapEventsProps) {
+export default function MapEvents({ position, zoom = 16 }: MapEventsProps) {
   const map = useMap();
 
   useEffect(() => {

@@ -49,7 +49,6 @@ export default function ReviewsPage() {
       <CommonHeader title="Reviews Given" />
 
       <section className="max-w-md mx-auto px-4 pt-24">
-
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
@@ -59,9 +58,8 @@ export default function ReviewsPage() {
           </h1>
 
           <p className="mt-3 text-[#6B7280] text-[18px] leading-8">
-            Here are the reviews you've left for workers.
-            Your feedback helps maintain our high-quality
-            community.
+            Here are the reviews you've left for workers. Your feedback helps
+            maintain our high-quality community.
           </p>
         </motion.div>
 

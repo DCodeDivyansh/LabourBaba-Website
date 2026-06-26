@@ -14,6 +14,7 @@ import CurrentLocationButton from "./CurrentLocationButton";
 import LocationInfo from "./LocationInfo";
 
 import { reverseGeocode } from "@/lib/geocode";
+import { getSavedLocation, saveLocation } from "@/lib/location-storage";
 
 interface MapPickerProps {
   initialPosition?: [number, number];
@@ -29,6 +30,17 @@ export default function MapPicker({
     "Fetching address..."
   );
 
+  // Load saved location and address from localStorage on mount
+  useEffect(() => {
+    const saved = getSavedLocation();
+    if (saved) {
+      setPosition([saved.latitude, saved.longitude]);
+      if (saved.address) {
+        setAddress(saved.address);
+      }
+    }
+  }, []);
+
   // Reverse Geocode whenever location changes
   useEffect(() => {
     const fetchAddress = async () => {
@@ -38,6 +50,8 @@ export default function MapPicker({
       );
 
       setAddress(result);
+      // Save the new address to localStorage
+      saveLocation(position[0], position[1], result);
     };
 
     fetchAddress();
@@ -54,6 +68,8 @@ export default function MapPicker({
         ) => {
           setPosition(newPosition);
           setAddress(newAddress);
+          // Save when location and address immediately when selected from search
+          saveLocation(newPosition[0], newPosition[1], newAddress);
         }}
       />
 

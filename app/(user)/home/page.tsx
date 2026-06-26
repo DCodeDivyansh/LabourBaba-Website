@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  ChevronDown,
   Zap,
   Calendar,
   AlertTriangle,
@@ -12,15 +11,12 @@ import {
   ShieldCheck,
   Gift,
   Share2,
-  MapPin,
-  Sun,
   ArrowRight,
 } from "lucide-react";
 
 import TopNavbar from "@/components/TopNavbar";
 import BottomNav from "@/components/BottomNav";
 import GreetingSection from "@/components/HomePage/GreetingSection";
-import LocationCard from "@/components/CreateRequest/LocationCard";
 
 const quickActions = [
   { title: "Book Now", icon: Zap },
@@ -89,7 +85,7 @@ export default function HomePage() {
                     setActiveSlide((s) => Math.max(s - 1, 0));
                   }
                 }}
-                className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-[#FF5404] to-[#FF7A33] p-5 shadow-md cursor-grab active:cursor-grabbing"
+                className="relative rounded-2xl overflow-hidden bg-linear-to-br from-[#FF5404] to-[#FF7A33] p-5 shadow-md cursor-grab active:cursor-grabbing"
               >
                 <div className="absolute -right-4 -bottom-4 opacity-15 text-white">
                   <svg width="110" height="110" viewBox="0 0 24 24" fill="none">
@@ -163,7 +159,9 @@ export default function HomePage() {
                   >
                     <Icon
                       size={15}
-                      className={item.danger ? "text-red-500" : "text-[#FF5404]"}
+                      className={
+                        item.danger ? "text-red-500" : "text-[#FF5404]"
+                      }
                     />
                   </div>
                   <span className="text-[13px] font-medium text-[#1F2937] whitespace-nowrap">

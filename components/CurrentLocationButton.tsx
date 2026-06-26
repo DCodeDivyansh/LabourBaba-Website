@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { LocateFixed, Loader2 } from "lucide-react";
+import { getSavedLocation, saveLocation, hasLocationChanged } from "@/lib/location-storage";
 
 interface CurrentLocationButtonProps {
   onLocationFound: (
@@ -20,12 +21,28 @@ export default function CurrentLocationButton({
       return;
     }
 
+    const savedLocation = getSavedLocation();
+
+    if (savedLocation) {
+      console.log('Found saved location:', savedLocation);
+    }
+
     setLoading(true);
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const latitude = position.coords.latitude;
         const longitude = position.coords.longitude;
+
+        const locationChanged = !savedLocation ||
+          hasLocationChanged(latitude, longitude, savedLocation.latitude, savedLocation.longitude);
+
+        if (locationChanged) {
+          console.log('Location changed - updating localStorage');
+          saveLocation(latitude, longitude);
+        } else {
+          console.log('Location unchanged - keeping existing localStorage entry');
+        }
 
         onLocationFound([
           latitude,
@@ -36,6 +53,12 @@ export default function CurrentLocationButton({
       },
       (error) => {
         setLoading(false);
+
+        if (savedLocation) {
+          console.log('Falling back to saved location');
+          onLocationFound([savedLocation.latitude, savedLocation.longitude]);
+          return;
+        }
 
         switch (error.code) {
           case error.PERMISSION_DENIED:
@@ -57,7 +80,7 @@ export default function CurrentLocationButton({
       {
         enableHighAccuracy: true,
         timeout: 10000,
-        maximumAge: 0,
+        maximumAge: 300000,
       }
     );
   };
