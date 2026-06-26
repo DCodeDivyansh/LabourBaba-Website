@@ -1,23 +1,18 @@
 "use client";
-
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import {useEffect,useState} from "react";
+import { motion } from "framer-motion";
 import {
   ChevronDown,
-  Zap,
-  Calendar,
-  AlertTriangle,
-  History,
-  X,
-  ShieldCheck,
-  Gift,
-  Share2,
   MapPin,
   Sun,
-  ArrowRight,
 } from "lucide-react";
-
+import {getSavedLocation} from "@/lib/location-storage";
 export default function GreetingSection() {
+  const [savedLocation, setSavedLocation] = useState<string>("");
+  useEffect(() => {
+    const savedLocation = getSavedLocation();
+    setSavedLocation(savedLocation?.address || "");
+  }, []);
   return (
     <motion.div
       initial={{ opacity: 0, y: 14 }}
@@ -60,7 +55,7 @@ export default function GreetingSection() {
             Current Location
           </p>
           <p className="text-[13px] font-medium text-black truncate">
-            402, Shiv Shakti Apts, Andheri
+            {savedLocation }
           </p>
         </div>
         <ChevronDown size={16} className="text-black/50 shrink-0" />
