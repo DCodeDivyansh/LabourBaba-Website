@@ -1,5 +1,8 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
+
 import { motion } from "framer-motion";
 import {
   Bookmark,
@@ -18,27 +21,32 @@ import BottomNav from "@/components/BottomNav";
 const menuItems = [
   {
     title: "Saved Locations",
+    href: "/SavedLocations",
     subtitle: "Manage home, work & sites",
     icon: Bookmark,
   },
   {
     title: "Request History",
+    href: "/Requests",
     subtitle: "View past labour bookings",
     icon: History,
   },
   {
     title: "Reviews Given",
+    href: "/ReviewsGiven",
     subtitle: "Ratings you've provided",
     icon: Star,
   },
   {
     title: "Help & Support",
+    href: "/HelpAndSupport",
     subtitle: "FAQs & Customer Service",
     icon: HeadphonesIcon,
   },
 ];
 
 export default function ProfilePage() {
+    const router = useRouter();
   return (
     <main className="min-h-screen bg-[#F8F9FB] pb-28 relative overflow-hidden">
       {/* Background Glow */}
@@ -118,13 +126,14 @@ export default function ProfilePage() {
         </motion.div>
 
         {/* Menu Cards */}
-        <div className="mt-8 space-y-4">
+        <div className="mt-8 space-y-4" >
           {menuItems.map((item, index) => {
             const Icon = item.icon;
 
             return (
               <motion.button
                 key={item.title}
+                onClick={() => router.push(item.href)}
                 initial={{
                   opacity: 0,
                   x: -20,
