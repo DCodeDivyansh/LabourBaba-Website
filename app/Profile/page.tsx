@@ -48,15 +48,15 @@ const menuItems = [
 export default function ProfilePage() {
     const router = useRouter();
   return (
-    <main className="min-h-screen bg-[#F8F9FB] pb-28 relative overflow-hidden">
+    <main className="min-h-screen bg-[#F8F9FB] pb-26 relative overflow-hidden">
       {/* Background Glow */}
-      <div className="absolute top-0 right-0 w-72 h-72 bg-orange-400/10 blur-[120px] rounded-full" />
+      {/* <div className="absolute top-0 right-0 w-72 h-72 bg-orange-400/10 blur-[120px] rounded-full" /> */}
 
-      <div className="absolute bottom-20 left-0 w-72 h-72 bg-cyan-400/10 blur-[120px] rounded-full" />
+      {/* <div className="absolute bottom-20 left-0 w-72 h-72 bg-cyan-400/10 blur-[120px] rounded-full" /> */}
 
       <TopNavbar />
 
-      <section className="max-w-md mx-auto px-4 pt-24">
+      <section className="max-w-md mx-auto px-4 pt-24 bg-white">
         {/* Profile Card */}
         <motion.div
           initial={{
@@ -73,15 +73,15 @@ export default function ProfilePage() {
             border
             border-[#E2BFB0]
             shadow-lg
-            p-6
+            p-4
             text-center
           "
         >
           <div className="relative inline-block">
             <div
               className="
-                w-28
-                h-28
+                w-20
+                h-20
                 rounded-full
                 bg-[#FF5404]
                 text-white
@@ -100,33 +100,33 @@ export default function ProfilePage() {
                 absolute
                 bottom-0
                 right-0
-                w-10
-                h-10
+                w-6
+                h-6
                 rounded-full
-                bg-[#FF5404]
-                text-white
+                bg-[#ffffff]
+                text-[#FF5404]
                 flex
                 items-center
                 justify-center
                 shadow-md
               "
             >
-              <Pencil size={16} />
+              <Pencil size={14} />
             </button>
           </div>
 
-          <h2 className="mt-5 text-4xl font-bold text-[#1F2937]">
+          <h2 className="mt-3 text-4xl font-bold text-[#1F2937]">
             John Doe
           </h2>
 
-          <div className="mt-2 flex items-center justify-center gap-2 text-[#5F4B42]">
+          <div className="mt-1.5 flex items-center justify-center gap-2 text-[#5F4B42]">
             <Phone size={16} />
             <span>+91 98765 43210</span>
           </div>
         </motion.div>
 
         {/* Menu Cards */}
-        <div className="mt-8 space-y-4" >
+        <div className="mt-6 space-y-2.5" >
           {menuItems.map((item, index) => {
             const Icon = item.icon;
 
@@ -158,7 +158,7 @@ export default function ProfilePage() {
                   border-[#E2BFB0]
                   rounded-2xl
                   shadow-sm
-                  p-4
+                  p-2.5
                   flex
                   items-center
                   justify-between
@@ -169,8 +169,8 @@ export default function ProfilePage() {
                 <div className="flex items-center gap-4">
                   <div
                     className="
-                      w-12
-                      h-12
+                      w-10
+                      h-10
                       rounded-full
                       bg-[#EEF2FF]
                       flex
@@ -179,13 +179,13 @@ export default function ProfilePage() {
                     "
                   >
                     <Icon
-                      size={22}
+                      size={18}
                       className="text-[#64748B]"
                     />
                   </div>
 
                   <div className="text-left">
-                    <h3 className="text-2xl font-semibold text-[#1F2937]">
+                    <h3 className="text-xl font-bold text-[#1F2937]">
                       {item.title}
                     </h3>
 
@@ -205,7 +205,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Divider */}
-        <div className="my-8 border-t border-[#E2BFB0]" />
+        <div className="my-4 border-t border-[#E2BFB0]" />
 
         {/* Logout */}
         <motion.button
@@ -217,7 +217,7 @@ export default function ProfilePage() {
           }}
           className="
             w-full
-            h-16
+            h-12
             rounded-full
             border-2
             border-[#FF5404]

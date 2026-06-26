@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { motion } from "framer-motion";
 
 const navItems = [
   {
@@ -36,23 +37,26 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <div
+    <nav
       className="
-        fixed
-        pt-2
-        pb-2
-        bottom-0
-        left-0
-        right-0
-        max-w-md
-        mx-auto
-        bg-white
-        border-[#E2BFB0]
-        shadow-[0_-6px_20px_rgba(0,0,0,0.12)]
-        z-50
-      "
+    fixed
+    bottom-3
+    left-1/2
+    -translate-x-1/2
+    z-50
+    w-[calc(100%-20px)]
+    max-w-md
+    rounded-2xl
+    border
+    border-orange-100
+    bg-white/95
+    backdrop-blur-xl
+    shadow-xl
+    px-2
+    py-2
+  "
     >
-      <div className="h-18.5 flex items-center justify-around px-2">
+      <div className="flex items-center justify-around">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
 
@@ -60,70 +64,95 @@ export default function BottomNav() {
             <Link
               key={item.label}
               href={item.href}
-              className="relative flex flex-col items-center"
             >
-              {/* Notification Dot */}
-              {item.hasNotification && (
-                <span
+              <motion.div
+                whileHover={{
+                  y: -4,
+                  scale: 1.05,
+                }}
+                whileTap={{
+                  scale: 0.9,
+                }}
+                className="relative flex flex-col items-center"
+              >
+                {/* Notification Dot */}
+                {item.hasNotification && (
+                  <motion.span
+                    animate={{
+                      scale: [1, 1.4, 1],
+                    }}
+                    transition={{
+                      repeat: Infinity,
+                      duration: 1.5,
+                    }}
+                    className="
+                      absolute
+                      top-0
+                      right-1
+                      h-2
+                      w-2
+                      rounded-full
+                      bg-red-500
+                    "
+                  />
+                )}
+
+                {/* Active Background */}
+                <motion.div
+                  animate={{
+                    backgroundColor: isActive
+                      ? "#FF5404"
+                      : "rgba(0,0,0,0)",
+                  }}
+                  transition={{
+                    duration: 0.25,
+                  }}
                   className="
-                    absolute
-                    top-0
-                    right-2
-                    w-2
-                    h-2
+                    flex
+                    h-10
+                    w-14
+                    items-center
+                    justify-center
                     rounded-full
-                    bg-red-500
                   "
-                />
-              )}
+                >
+                  <motion.div
+                    animate={{
+                      rotate: isActive ? [0, -10, 10, 0] : 0,
+                      scale: isActive ? 1.08 : 1,
+                    }}
+                    transition={{
+                      duration: 0.4,
+                    }}
+                  >
+                    <Image
+                      src={
+                        isActive
+                          ? item.activeIcon
+                          : item.inactiveIcon
+                      }
+                      alt={item.label}
+                      width={20}
+                      height={20}
+                    />
+                  </motion.div>
+                </motion.div>
 
-              {/* Active Circle */}
-              <div
-                className={`
-                  w-20
-                  h-12
-                  flex
-                  items-center
-                  justify-center
-                  transition-all
-                  duration-300
-                  ${
-                    isActive
-                      ? "bg-[#FF5404] rounded-full"
-                      : ""
-                  }
-                `}
-              >
-                <Image
-                  src={
-                    isActive
-                      ? item.activeIcon
-                      : item.inactiveIcon
-                  }
-                  alt={item.label}
-                  width={22}
-                  height={22}
-                />
-              </div>
-
-              <span
-                className={`
-                  text-[12px]
-                  mt-1
-                  font-medium
-                  ${
-                    isActive
-                      ? "text-[#FF5404]"
-                      : "text-[#475569]"
-                  }
-                `}
-              >
-                {item.label}
-              </span>
+                <motion.span
+                  animate={{
+                    color: isActive
+                      ? "#FF5404"
+                      : "#64748B",
+                  }}
+                  className="mt-1 text-[11px] font-medium"
+                >
+                  {item.label}
+                </motion.span>
+              </motion.div>
             </Link>
           );
         })}
       </div>
-    </div>
+    </nav>
   );
 }
