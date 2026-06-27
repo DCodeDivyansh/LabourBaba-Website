@@ -9,11 +9,44 @@ import {
   Building2,
   ChevronDown,
   ArrowRight,
+  Lock,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { clientSignup, setAuthToken } from "@/lib/api/auth";
 
 export default function SignupPage() {
   const router = useRouter();
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSignup = async () => {
+    if (!name || !phone || !password) {
+      setError("Please fill in all required fields");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await clientSignup({
+        phone: "+91" + phone,
+        name,
+        password,
+      });
+
+      await setAuthToken(response.token);
+      router.push("/home");
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <main className="min-h-screen bg-[#F5F7FA]">
@@ -53,6 +86,11 @@ export default function SignupPage() {
 
           {/* Form */}
           <div className="mt-10 space-y-5">
+            {error && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl">
+                {error}
+              </div>
+            )}
             {/* Full Name */}
             <div className="border border-[#F2B8A0] rounded-xl h-14 flex items-center px-4 bg-white">
               <User size={20} className="text-[#6B7280]" />
@@ -60,6 +98,8 @@ export default function SignupPage() {
               <input
                 type="text"
                 placeholder="Full Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 className="flex-1 ml-3 outline-none text-lg"
               />
             </div>
@@ -74,7 +114,22 @@ export default function SignupPage() {
               <input
                 type="tel"
                 placeholder="Mobile Number"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
                 className="flex-1 px-4 outline-none text-lg"
+              />
+            </div>
+
+            {/* Password */}
+            <div className="border border-[#F2B8A0] rounded-xl h-14 flex items-center px-4 bg-white">
+              <Lock size={20} className="text-[#6B7280]" />
+
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="flex-1 ml-3 outline-none text-lg"
               />
             </div>
 
@@ -141,11 +196,13 @@ export default function SignupPage() {
               shadow-lg
               hover:bg-orange-600
               transition
+              disabled:opacity-50
             "
-              onClick={() => router.push("/otp")}
+              onClick={handleSignup}
+              disabled={loading}
             >
-              Create Account
-              <ArrowRight size={22} />
+              {loading ? "Signing up..." : "Create Account"}
+              {!loading && <ArrowRight size={22} />}
             </button>
 
             {/* Login */}
