@@ -7,22 +7,48 @@ import {
   Globe,
   ChevronDown,
   ArrowRight,
+  Lock,
 } from "lucide-react";
+import { clientLogin, setAuthToken,setCustomerId } from "@/lib/api/auth";
 
 export default function LoginCard() {
   const router = useRouter();
 
   const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handlePhoneChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const value = e.target.value.replace(/\D/g, "").slice(0, 10);
+    setPhone(value);
+  };
 
-    if (value.length <= 5) {
-      setPhone(value);
-    } else {
-      setPhone(`${value.slice(0, 5)} ${value.slice(5)}`);
+  const handleLogin = async () => {
+    if (!phone || !password) {
+      setError("Please fill in all fields");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await clientLogin({
+        phone: "+91" + phone,
+        password,
+      });
+      if(response.data){
+        await setCustomerId(response.data.id);
+      }
+      await setAuthToken(response.token);
+      router.push("/home");
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Something went wrong");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -88,6 +114,12 @@ export default function LoginCard() {
           Welcome Back
         </motion.h2>
 
+        {error && (
+          <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl">
+            {error}
+          </div>
+        )}
+
         {/* Phone Input */}
 
         <motion.div
@@ -102,7 +134,7 @@ export default function LoginCard() {
           transition={{
             delay: 0.3,
           }}
-          className="relative mb-8"
+          className="relative mb-6"
         >
           <label className="absolute -top-3 left-4 bg-white px-2 text-sm font-medium text-orange-500">
             Mobile Number
@@ -129,14 +161,47 @@ export default function LoginCard() {
               value={phone}
               onChange={handlePhoneChange}
               type="tel"
-              placeholder="98765 43210"
+              placeholder="9876543210"
               className="flex-1 px-4 text-xl text-gray-700 outline-none"
             />
 
           </div>
         </motion.div>
 
-        {/* OTP Button */}
+        {/* Password Input */}
+        <motion.div
+          initial={{
+            opacity: 0,
+            y: 15,
+          }}
+          animate={{
+            opacity: 1,
+            y: 0,
+          }}
+          transition={{
+            delay: 0.4,
+          }}
+          className="relative mb-8"
+        >
+          <label className="absolute -top-3 left-4 bg-white px-2 text-sm font-medium text-orange-500">
+            Password
+          </label>
+
+          <div className="flex h-16 overflow-hidden rounded-xl border-2 border-orange-500 transition-all duration-300 focus-within:shadow-lg focus-within:ring-4 focus-within:ring-orange-100">
+            <div className="flex w-12 items-center justify-center border-r bg-gray-50">
+              <Lock size={18} />
+            </div>
+            <input
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              type="password"
+              placeholder="Enter your password"
+              className="flex-1 px-4 text-xl text-gray-700 outline-none"
+            />
+          </div>
+        </motion.div>
+
+        {/* Login Button */}
 
         <motion.button
           whileHover={{
@@ -145,8 +210,9 @@ export default function LoginCard() {
           whileTap={{
             scale: 0.98,
           }}
-          onClick={() => router.push("/otp")}
-          className="relative flex h-16 w-full items-center justify-center gap-2 overflow-hidden rounded-full bg-orange-500 text-2xl font-semibold text-white shadow-lg transition hover:bg-orange-600"
+          onClick={handleLogin}
+          disabled={loading}
+          className="relative flex h-16 w-full items-center justify-center gap-2 overflow-hidden rounded-full bg-orange-500 text-2xl font-semibold text-white shadow-lg transition hover:bg-orange-600 disabled:opacity-50"
         >
           {/* Shimmer */}
 
@@ -163,13 +229,15 @@ export default function LoginCard() {
           />
 
           <span className="relative">
-            Get OTP
+            {loading ? "Logging in..." : "Login"}
           </span>
 
-          <ArrowRight
-            size={24}
-            className="relative"
-          />
+          {!loading && (
+            <ArrowRight
+              size={24}
+              className="relative"
+            />
+          )}
         </motion.button>
 
         {/* Signup */}

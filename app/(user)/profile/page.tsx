@@ -16,6 +16,7 @@ import {
 
 import TopNavbar from "@/components/TopNavbar";
 import BottomNav from "@/components/BottomNav";
+import { logout } from "@/lib/api/auth";
 
 const menuItems = [
   {
@@ -222,6 +223,7 @@ export default function ProfilePage() {
             hover:bg-orange-50
             transition-all
           "
+          onClick={() => {logout(); router.push("/login")}}
         >
           <LogOut size={20} />
           Logout
