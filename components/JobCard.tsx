@@ -13,13 +13,14 @@ import {
 } from "lucide-react";
 import { Job } from "@/lib/types";
 import { format } from "date-fns";
-
+import { useRouter } from "next/navigation";
 interface Props {
   job: Job;
   index: number;
 }
 
 export default function JobCard({ job, index }: Props) {
+  const router = useRouter();
   const getStatusColor = (status: string) => {
     switch (status.toUpperCase()) {
       case "OPEN":
@@ -46,7 +47,6 @@ export default function JobCard({ job, index }: Props) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
       whileHover={{ y: -4, scale: 1.01 }}
-      transition={{ type: "spring", stiffness: 250, damping: 18 }}
       className="overflow-hidden rounded-2xl border border-orange-100 bg-white shadow-sm"
     >
       <div className="flex">
@@ -88,10 +88,10 @@ export default function JobCard({ job, index }: Props) {
           </div>
 
           {/* Location & Date */}
-          <div className="mt-3 space-y-2">
+          <div className="mt-3 space-y-2 ">
             <div className="flex items-center gap-2 text-sm text-slate-600">
               <MapPin size={16} className="text-orange-500" />
-              <span className="truncate">{job.location}</span>
+              <span className="truncate w-[300px]">{job.location}</span>
             </div>
             <div className="flex items-center gap-2 text-sm text-slate-500">
               <Clock size={16} className="text-slate-400" />
@@ -147,10 +147,10 @@ export default function JobCard({ job, index }: Props) {
               shadow-lg
             "
           >
-            <span className="flex items-center justify-center gap-2">
+            <button onClick={() => router.push(`/job/${job.id}`)} className="flex items-center justify-center gap-2">
               View Details
               <ChevronRight size={18} />
-            </span>
+            </button>
           </motion.button>
         </div>
       </div>

@@ -1,7 +1,7 @@
 import TopNavbar from "@/components/TopNavbar";
 import BottomNav from "@/components/BottomNav";
 import RequestsList from "@/components/RequestsList";
-import { getJobs } from "@/lib/api/job";
+import { getJobs } from "@/services/job";
 import { Job } from "@/lib/types";
 
 export default async function RequestsPage() {

@@ -1,6 +1,7 @@
 "use server";
 import axios from "axios";
 import { cookies } from "next/headers";
+import { apiCall } from "./api";
 
 export interface SignupRequest {
   phone: string;
@@ -24,8 +25,8 @@ export const logout = async () => {
 };
 
 export async function clientSignup(data: SignupRequest): Promise<AuthResponse> {
-  const response = await axios.post(
-    `${process.env.BACKEND_URL}/api/clients/signup`,
+  const response = await apiCall.post(
+    "/api/clients/signup",
     data
   );
   if (response.data.token) {
@@ -38,8 +39,8 @@ export async function clientSignup(data: SignupRequest): Promise<AuthResponse> {
 }
 
 export async function clientLogin(data: LoginRequest): Promise<AuthResponse> {
-  const response = await axios.post(
-    `${process.env.BACKEND_URL}/api/clients/login`,
+  const response = await apiCall.post(
+    "/api/clients/login",
     data
   );
   if (response.data.token) {

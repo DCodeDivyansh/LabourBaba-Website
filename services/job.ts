@@ -1,8 +1,8 @@
 "use server";
-import axios from "axios";
 import { cookies } from "next/headers";
-import { getCustomerId } from "./auth";
-import { Job, JobRequirement } from "@/lib/types";
+import { getCustomerId } from "@/lib/api/auth";
+import { Job } from "@/lib/types";
+import { apiCall } from "@/lib/api/api";
 
 interface CreateJobRequest {
   customer_id?: string;
@@ -35,15 +35,9 @@ async function createJob(data: CreateJobRequest): Promise<CreateJobResponse> {
     const customerId = await getCustomerId();
     data.customer_id = customerId;
     const tokenValue = (await cookies()).get("auth_token")?.value;
-    const res = await axios.post(
-      `${process.env.BACKEND_URL}/api/jobs`,
+    const res = await apiCall.post(
+      `/api/jobs`,
       data,
-      {
-        headers: {
-          authorization: `Bearer ${tokenValue}`,
-          "Content-Type": "application/json",
-        },
-      }
     );
     return res.data;
   } catch (error) {
@@ -58,16 +52,9 @@ async function addJobRequirement(
 ) {
   console.log("Adding requirement to job:", jobId, data);
   try {
-    const tokenValue = (await cookies()).get("auth_token")?.value;
-    const res = await axios.post(
-      `${process.env.BACKEND_URL}/api/jobs/${jobId}/requirements`,
+    const res = await apiCall.post(
+      `/api/jobs/${jobId}/requirements`,
       data,
-      {
-        headers: {
-          authorization: `Bearer ${tokenValue}`,
-          "Content-Type": "application/json",
-        },
-      }
     );
     return res.data;
   } catch (error) {
@@ -78,14 +65,9 @@ async function addJobRequirement(
 
 async function getJobs(): Promise<Job[]> {
   try {
-    const tokenValue = (await cookies()).get("auth_token")?.value;
     const customerId = await getCustomerId();
-    const res = await axios.get(`${process.env.BACKEND_URL}/api/jobs`,
+    const res = await apiCall.get(`/api/jobs`,
       {
-        headers: {
-          authorization: `Bearer ${tokenValue}`,
-          "Content-Type": "application/json",
-        },
         params: {
           customer_id: customerId,
         }
@@ -123,14 +105,7 @@ async function getJobs(): Promise<Job[]> {
 
 async function getJobById(jobId: string): Promise<Job> {
   try {
-    const tokenValue = (await cookies()).get("auth_token")?.value;
-    const res = await axios.get(`${process.env.BACKEND_URL}/api/jobs/${jobId}`,
-      {
-        headers: {
-          authorization: `Bearer ${tokenValue}`,
-          "Content-Type": "application/json",
-        },
-      }
+    const res = await apiCall.get(`/api/jobs/${jobId}`,
     );
     console.log("Fetched job:", res.data);
     return res.data;

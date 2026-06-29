@@ -10,7 +10,7 @@ import {
 import TopBar from "@/components/CommonHeader";
 import WorkerCard from "@/components/CreateRequest/WorkerCard";
 import RateInput from "@/components/CreateRequest/RateInput";
-import { createJob, addJobRequirement } from "@/lib/api/job";
+import { createJob } from "@/services/job";
 import { useRouter } from "next/navigation";
 
 export default function NewRequestPage() {
