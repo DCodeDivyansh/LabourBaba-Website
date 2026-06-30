@@ -12,11 +12,13 @@ import {
   Gift,
   Share2,
   ArrowRight,
+  Bell,
 } from "lucide-react";
 
 import TopNavbar from "@/components/TopNavbar";
 import BottomNav from "@/components/BottomNav";
 import GreetingSection from "@/components/HomePage/GreetingSection";
+import { useFCM } from "@/lib/hooks/useFCM";
 
 const quickActions = [
   { title: "Book Now", icon: Zap },
@@ -52,6 +54,8 @@ const promos = [
 export default function HomePage() {
   const [showTracking, setShowTracking] = useState(true);
   const [activeSlide, setActiveSlide] = useState(0);
+  const [hideNotificationBanner, setHideNotificationBanner] = useState(false);
+  const { permission, requestPermission, isLoading, error, isFCMEnabled } = useFCM();
 
   return (
     <main className="min-h-screen bg-[#F8F9FB] pb-24 relative overflow-hidden">
@@ -62,6 +66,60 @@ export default function HomePage() {
       <TopNavbar />
 
       <section className="max-w-md mx-auto px-4 pt-20 relative z-10">
+        {/* Notification Permission Banner */}
+        <AnimatePresence>
+          {isFCMEnabled && permission === "default" && !hideNotificationBanner && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="mb-4 bg-gradient-to-r from-orange-50 to-orange-100 border border-orange-200 rounded-2xl p-4 shadow-sm"
+            >
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-full bg-orange-200 flex items-center justify-center shrink-0">
+                  <Bell size={20} className="text-orange-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-semibold text-slate-900">Never miss an update!</h4>
+                  <p className="text-sm text-slate-600 mt-1">Enable notifications for job updates and offers</p>
+                </div>
+                <button
+                  onClick={() => setHideNotificationBanner(true)}
+                  className="text-slate-400 hover:text-slate-600 transition-colors shrink-0"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+              <div className="mt-3 flex gap-2">
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  onClick={requestPermission}
+                  disabled={isLoading}
+                  className={`flex-1 font-semibold py-2 rounded-xl text-sm transition-all ${
+                    isLoading 
+                      ? "bg-orange-300 cursor-not-allowed" 
+                      : "bg-orange-500 hover:bg-orange-600 text-white"
+                  }`}
+                >
+                  {isLoading ? "Setting up..." : "Enable Notifications"}
+                </motion.button>
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => setHideNotificationBanner(true)}
+                  disabled={isLoading}
+                  className="px-4 bg-white border border-slate-200 text-slate-700 font-medium py-2 rounded-xl text-sm disabled:opacity-50"
+                >
+                  Not Now
+                </motion.button>
+              </div>
+              {error && (
+                <p className="mt-2 text-xs text-red-600 bg-red-50 p-2 rounded-lg">
+                  {error}
+                </p>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
         {/* Hero: greeting + weather + location combined */}
         <GreetingSection />
 

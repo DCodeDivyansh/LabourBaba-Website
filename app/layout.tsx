@@ -1,4 +1,5 @@
 import "./globals.css";
+import FCMProvider from "@/components/FCMProvider";
 
 export default function RootLayout({
   children,
@@ -8,9 +9,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <div className="mobile-container">
-          {children}
-        </div>
+        <FCMProvider>
+          <div className="mobile-container">
+            {children}
+          </div>
+        </FCMProvider>
       </body>
     </html>
   );
