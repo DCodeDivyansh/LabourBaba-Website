@@ -34,7 +34,6 @@ async function createJob(data: CreateJobRequest): Promise<CreateJobResponse> {
   try {
     const customerId = await getCustomerId();
     data.customer_id = customerId;
-    const tokenValue = (await cookies()).get("auth_token")?.value;
     const res = await apiCall.post(
       `/api/jobs`,
       data,
