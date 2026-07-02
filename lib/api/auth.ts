@@ -17,7 +17,7 @@ export interface AuthResponse {
   token: string;
   data?: any;
 }
-
+// export interface
 export const logout = async () => {
   await removeAuthToken();
   await removeCustomerId();
@@ -37,17 +37,18 @@ export async function clientSignup(data: SignupRequest): Promise<AuthResponse> {
   return response.data;
 }
 
-export async function clientLogin(data: LoginRequest): Promise<AuthResponse> {
+export async function clientLogin(data: LoginRequest): Promise<AuthResponse | undefined> {
   try {
     const response = await apiCall.post(
       "/api/clients/login",
       data
     );
+    console.log("Login response:", response.data.data);
     if (response.data.token) {
       await setAuthToken(response.data.token);
     }
-    if (response.data.customer_id || (response.data.data && response.data.data.customer_id)) {
-      await setCustomerId(response.data.customer_id || response.data.data.customer_id);
+    if (response.data.data.id) {
+      await setCustomerId(response.data.data.id);
     }
     return response.data;
   } catch (error: any) {

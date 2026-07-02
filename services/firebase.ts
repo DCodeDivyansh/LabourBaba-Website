@@ -65,12 +65,12 @@ export async function requestForToken() {
   try {
     // First request permission
     const permission = await Notification.requestPermission();
-    
+
     if (permission === 'granted') {
       console.log("Notification permission granted");
-      
+
       let currentToken: string | null = null;
-      
+
       // Try with VAPID key first
       try {
         if (vapidKey) {
@@ -86,7 +86,7 @@ export async function requestForToken() {
           throw fallbackError;
         }
       }
-      
+
       if (currentToken) {
         console.log("FCM Token received:", currentToken.substring(0, 50) + "...");
         // TODO: Send this token to your backend to save it for the user
@@ -113,12 +113,12 @@ export function onMessageListener() {
   if (!FCM_ENABLED || !messaging) {
     return null;
   }
-
   return new Promise((resolve) => {
-    onMessage(messaging, (payload) => {
-      console.log("Received foreground message:", payload);
-      resolve(payload);
-    });
+    if (messaging != null)
+      onMessage(messaging, (payload) => {
+        console.log("Received foreground message:", payload);
+        resolve(payload);
+      });
   });
 }
 
