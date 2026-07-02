@@ -9,7 +9,7 @@ import {
   ArrowRight,
   Lock,
 } from "lucide-react";
-import { clientLogin, setAuthToken,setCustomerId } from "@/lib/api/auth";
+import { clientLogin, setAuthToken, setCustomerId } from "@/lib/api/auth";
 
 export default function LoginCard() {
   const router = useRouter();
@@ -40,10 +40,7 @@ export default function LoginCard() {
         phone: "+91" + phone,
         password,
       });
-      if(response.data){
-        await setCustomerId(response.data.id);
-      }
-      await setAuthToken(response.token);
+      console.log("Login response:", response);
       router.push("/home");
     } catch (err: any) {
       setError(err.response?.data?.message || "Something went wrong");

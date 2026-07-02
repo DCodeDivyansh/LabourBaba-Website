@@ -1,5 +1,4 @@
 "use server";
-import { cookies } from "next/headers";
 import { getCustomerId } from "@/lib/api/auth";
 import { Job } from "@/lib/types";
 import { apiCall } from "@/lib/api/api";
@@ -73,7 +72,7 @@ async function getJobs(): Promise<Job[]> {
       }
     );
     console.log("Fetched jobs response:", res.data);
-    
+
     // Handle different API response formats
     let jobsData: any = res.data;
     if (jobsData && typeof jobsData === 'object' && !Array.isArray(jobsData)) {
@@ -93,7 +92,7 @@ async function getJobs(): Promise<Job[]> {
         }
       }
     }
-    
+
     // Ensure we return an array
     return Array.isArray(jobsData) ? jobsData : [];
   } catch (error) {

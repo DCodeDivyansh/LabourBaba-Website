@@ -1,5 +1,4 @@
 "use server";
-import axios from "axios";
 import { cookies } from "next/headers";
 import { apiCall } from "./api";
 
@@ -39,17 +38,21 @@ export async function clientSignup(data: SignupRequest): Promise<AuthResponse> {
 }
 
 export async function clientLogin(data: LoginRequest): Promise<AuthResponse> {
-  const response = await apiCall.post(
-    "/api/clients/login",
-    data
-  );
-  if (response.data.token) {
-    await setAuthToken(response.data.token);
+  try {
+    const response = await apiCall.post(
+      "/api/clients/login",
+      data
+    );
+    if (response.data.token) {
+      await setAuthToken(response.data.token);
+    }
+    if (response.data.customer_id || (response.data.data && response.data.data.customer_id)) {
+      await setCustomerId(response.data.customer_id || response.data.data.customer_id);
+    }
+    return response.data;
+  } catch (error: any) {
+    console.error("Login error:", error.response?.data || error.message);
   }
-  if (response.data.customer_id || (response.data.data && response.data.data.customer_id)) {
-    await setCustomerId(response.data.customer_id || response.data.data.customer_id);
-  }
-  return response.data;
 }
 
 export async function setAuthToken(token: string) {
@@ -71,7 +74,7 @@ export async function removeAuthToken() {
   cookieStore.delete("auth_token");
 }
 
-export async function setCustomerId(customer_id: string){
+export async function setCustomerId(customer_id: string) {
   const cookieStore = await cookies();
   cookieStore.set("customer_id", customer_id, {
     httpOnly: true,
@@ -86,7 +89,7 @@ export async function getCustomerId() {
   return cookieStore.get("customer_id")?.value;
 }
 
- export async function removeCustomerId() {
+export async function removeCustomerId() {
   const cookieStore = await cookies();
   cookieStore.delete("customer_id");
 }
