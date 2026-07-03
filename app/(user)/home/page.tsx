@@ -19,8 +19,6 @@ import TopNavbar from "@/components/TopNavbar";
 import BottomNav from "@/components/BottomNav";
 import GreetingSection from "@/components/HomePage/GreetingSection";
 import { useFCM } from "@/lib/hooks/useFCM";
-import { getSocket, joinCustomerRoom } from "@/services/socket";
-import { getClientCustomerId } from "@/lib/client-cookies";
 
 const quickActions = [
   { title: "Book Now", icon: Zap },
@@ -58,10 +56,7 @@ export default function HomePage() {
   const [activeSlide, setActiveSlide] = useState(0);
   const [hideNotificationBanner, setHideNotificationBanner] = useState(false);
   const { permission, requestPermission, isLoading, error, isFCMEnabled } = useFCM();
-  useEffect(() => {
-    getSocket()?.connect();
-  }, []);
-   return (
+  return (
     <main className="min-h-screen bg-[#F8F9FB] pb-24 relative overflow-hidden">
       {/* Background Glow */}
       <div className="absolute top-0 right-0 w-72 h-72 bg-orange-400/10 blur-[120px] rounded-full" />
@@ -99,11 +94,10 @@ export default function HomePage() {
                   whileTap={{ scale: 0.97 }}
                   onClick={requestPermission}
                   disabled={isLoading}
-                  className={`flex-1 font-semibold py-2 rounded-xl text-sm transition-all ${
-                    isLoading 
-                      ? "bg-orange-300 cursor-not-allowed" 
-                      : "bg-orange-500 hover:bg-orange-600 text-white"
-                  }`}
+                  className={`flex-1 font-semibold py-2 rounded-xl text-sm transition-all ${isLoading
+                    ? "bg-orange-300 cursor-not-allowed"
+                    : "bg-orange-500 hover:bg-orange-600 text-white"
+                    }`}
                 >
                   {isLoading ? "Setting up..." : "Enable Notifications"}
                 </motion.button>
@@ -215,9 +209,8 @@ export default function HomePage() {
                   className="bg-white border border-[#EFE2DC] rounded-2xl shadow-sm px-4 py-3.5 flex items-center gap-2.5 hover:shadow-md transition-shadow shrink-0"
                 >
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                      item.danger ? "bg-red-50" : "bg-[#FFF1EA]"
-                    }`}
+                    className={`w-8 h-8 rounded-full flex items-center justify-center ${item.danger ? "bg-red-50" : "bg-[#FFF1EA]"
+                      }`}
                   >
                     <Icon
                       size={15}

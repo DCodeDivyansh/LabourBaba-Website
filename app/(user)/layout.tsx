@@ -10,6 +10,7 @@ export default function UserLayout({
   children: React.ReactNode;
 }>) {
   useEffect(() => {
+    // console.log("Socket.IO server version:", require("socket.io/package.json").version);
     // Join customer room when user loads any authenticated page
     const customerId = getClientCustomerId();
     if (customerId) {

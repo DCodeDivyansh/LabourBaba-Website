@@ -37,6 +37,7 @@ async function createJob(data: CreateJobRequest): Promise<CreateJobResponse> {
       `/api/jobs`,
       data,
     );
+    console.log("Job created successfully:", res.data);
     return res.data;
   } catch (error) {
     console.error("Error creating job:", error);
@@ -71,7 +72,7 @@ async function getJobs(): Promise<Job[]> {
         }
       }
     );
-    console.log("Fetched jobs response:", res.data);
+    // console.log("Fetched jobs response:", res.data);
 
     // Handle different API response formats
     let jobsData: any = res.data;
@@ -113,4 +114,14 @@ async function getJobById(jobId: string): Promise<Job> {
   }
 }
 
-export { createJob, getJobs, getJobById, addJobRequirement };
+async function cancelJob(jobId: string) {
+  try {
+    const res = await apiCall.post(`/api/jobs/${jobId}/cancel`);
+    return res.data;
+  } catch (error) {
+    console.error("Error cancelling job:", error);
+    throw error as Error;
+  }
+}
+
+export { createJob, getJobs, getJobById, addJobRequirement, cancelJob };

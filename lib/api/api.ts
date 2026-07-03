@@ -3,7 +3,7 @@ import axios from "axios";
 import { getAuthToken } from "./auth";
 
 export const apiCall = axios.create({
-  baseURL: process.env.BACKEND_URL,
+  baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
 });
 apiCall.interceptors.request.use(async (config) => {
 const token = await getAuthToken();
