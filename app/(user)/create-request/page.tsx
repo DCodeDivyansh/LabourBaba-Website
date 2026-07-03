@@ -11,7 +11,7 @@ import TopBar from "@/components/CommonHeader";
 import WorkerCard from "@/components/CreateRequest/WorkerCard";
 import RateInput from "@/components/CreateRequest/RateInput";
 import { createJob } from "@/services/job";
-import { joinCustomerRoom } from "@/services/socket";
+import { getSocket, joinCustomerRoom } from "@/services/socket";
 import { getClientCustomerId } from "@/lib/client-cookies";
 import { useRouter } from "next/navigation";
 
@@ -66,41 +66,53 @@ export default function NewRequestPage() {
           }] : [])
         ]
       });
-
-      // Step 2: Join the customer room via socket.io for real-time updates
-      const customerId = jobData.customer_id || getClientCustomerId();
-      if (customerId) {
-        await joinCustomerRoom(customerId);
+      console.log(jobData)
+      // Ensure we have job data
+      if (!jobData || !jobData.data.id) {
+        throw new Error("Job creation failed - no job ID received");
       }
 
-      // Step 2: Add requirements for each worker type
-      // const jobId = jobData.id;
-      // if (masonCount > 0) {
-      //   await addJobRequirement(jobId, {
-      //     skill_type: "Mason",
-      //     worker_count_needed: masonCount,
-      //     rate_per_day: masonPrice,
-      //     wave_size: 10,
-      //   });
-      // }
-      // if (labourCount > 0) {
-      //   await addJobRequirement(jobId, {
-      //     skill_type: "Labour",
-      //     worker_count_needed: labourCount,
-      //     rate_per_day: labourPrice,
-      //     wave_size: 10,
-      //   });
-      // }
+      // Step 2: Socket handling (if enabled)
+      const socket = getSocket();
+      if (socket) {
+        console.log("[socket.io] Initializing socket connection...");
+        const customerId = jobData.data.customer_id || getClientCustomerId();
+        console.log(customerId)
+        
+        if (customerId) {
+          // Wait for socket connection if not already connected
+          if (!socket.connected) {
+            await new Promise<void>((resolve) => {
+              socket.once("connect", () => {
+                console.log("[socket.io] Socket connected successfully");
+                resolve();
+              });
+              // Timeout in case connection takes too long - reduced to 3 seconds
+              setTimeout(() => {
+                console.log("[socket.io] Socket connection timeout, proceeding anyway");
+                resolve();
+              }, 3000);
+            });
+          }
 
-      // Navigate to requests page on success
-      router.push("/requests");
+          // Join customer room
+          await joinCustomerRoom(customerId);
+        }
+      } else {
+        console.log("[socket.io] Socket is disabled, skipping real-time features");
+      }
+
+      // Step 3: Navigate to waiting page
+      console.log(`[create-request] Job created successfully, redirecting to waiting page for job ${jobData.data.id}`);
+      router.push(`/waiting/${jobData.data.id}`);
     } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to create request");
+      const errorMessage = err.response?.data?.message || err.message || "Failed to create request";
+      console.error("[create-request] Error:", err);
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     const stored = getSavedLocation();
     setSavedLocation(stored);
@@ -236,7 +248,7 @@ export default function NewRequestPage() {
         </div>
       </div>
 
-      <motion.button
+      <motion.div
         initial={{ y: 120, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{
@@ -362,9 +374,7 @@ export default function NewRequestPage() {
             </span>
           </motion.button>
         </div>
-      </motion.button>
+      </motion.div>
     </main>
   );
 }
-
-
