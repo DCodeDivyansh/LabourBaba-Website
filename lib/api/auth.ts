@@ -13,9 +13,14 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface RefreshTokenRequest {
+  token: string;
+}
+
 export interface AuthResponse {
   token: string;
-  data?: any;
+  refreshToken?: string;
+  data?: Record<string, unknown>;
 }
 // export interface
 export const logout = async () => {
@@ -51,9 +56,30 @@ export async function clientLogin(data: LoginRequest): Promise<AuthResponse | un
       await setCustomerId(response.data.data.id);
     }
     return response.data;
-  } catch (error: any) {
-    console.error("Login error:", error.response?.data || error.message);
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: unknown }; message?: string };
+    console.error("Login error:", err.response?.data || err.message);
   }
+}
+
+export async function refreshAuthToken(token: string) {
+  const response = await apiCall.post("/api/auth/refresh", { token });
+  if (response.data.token) {
+    await setAuthToken(response.data.token);
+  }
+  return response.data;
+}
+
+export async function logoutUser() {
+  const token = await getAuthToken();
+  if (token) {
+    try {
+      await apiCall.post("/api/auth/logout", { token });
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  }
+  await logout();
 }
 
 export async function setAuthToken(token: string) {
