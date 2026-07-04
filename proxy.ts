@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const publicRoutes = ["/", "/landing", "/login", "/signup", "/otp"];
+const publicRoutes = ["/", "/landing", "/login", "/signup", "/otp", "/worker/login", "/worker/register"];
 
 export function proxy(request: NextRequest) {
   const token = request.cookies.get("auth_token")?.value;
@@ -12,6 +12,9 @@ export function proxy(request: NextRequest) {
   );
 
   const isUserRoute = path.startsWith("/(user)") || 
+    path.startsWith("/(admin)") ||
+    path.startsWith("/admin") ||
+    path.startsWith("/worker") ||
     path.startsWith("/home") || 
     path.startsWith("/create-request") || 
     path.startsWith("/requests") || 
