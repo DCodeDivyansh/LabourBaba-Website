@@ -10,6 +10,19 @@ export interface JobRequirement {
   status: string;
 }
 
+export interface AcceptedWorker {
+  bookingId: string;
+  requirementId: string;
+  worker: {
+    id: string;
+    name: string;
+    phone: string;
+    skill_type?: string;
+    worker_score?: number;
+  };
+  skill_type?: string;
+}
+
 export interface Job {
   id: string;
   customer_id: string;
