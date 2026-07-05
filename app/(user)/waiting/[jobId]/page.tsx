@@ -1,14 +1,33 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { getSocket, disconnectSocket } from "@/services/socket";
 import { getClientCustomerId } from "@/lib/client-cookies";
-import {  X, Clock, AlertCircle } from "lucide-react";
+import { X, Clock, AlertCircle, Phone, Star, Users, CheckCircle2 } from "lucide-react";
 import TopBar from "@/components/CommonHeader";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { getJobById, cancelJob } from "@/services/job";
-import type { Job } from "@/lib/types";
+import { getJobBookings } from "@/lib/api/job";
+import type { Job, AcceptedWorker } from "@/lib/types";
+
+// Normalizes a booking row coming back from GET /api/jobs/:jobId/bookings
+// (REST hydration on load/refresh) into the same shape the "worker:accepted"
+// socket event uses, so both sources can feed the same UI state.
+function normalizeBooking(b: any): AcceptedWorker | null {
+  if (!b?.worker) return null;
+  return {
+    bookingId: b.id,
+    requirementId: b.requirement_id,
+    worker: {
+      id: b.worker.id,
+      name: b.worker.name,
+      phone: b.worker.phone,
+      skill_type: b.worker.skill_type,
+      worker_score: b.worker.worker_score,
+    },
+  };
+}
 
 export default function WaitingPage() {
   const router = useRouter();
@@ -20,6 +39,16 @@ export default function WaitingPage() {
   const [socketConnected, setSocketConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [waitingTime, setWaitingTime] = useState(0);
+  const [acceptedWorkers, setAcceptedWorkers] = useState<AcceptedWorker[]>([]);
+  const [jobFullyBooked, setJobFullyBooked] = useState(false);
+
+  const totalNeeded =
+    job?.job_requirement?.reduce((sum, r) => sum + (r.worker_count_needed || 0), 0) || 0;
+  const totalFound = acceptedWorkers.length;
+  // Prefer the authoritative "job:fully_booked" event from the backend,
+  // but fall back to a local count comparison in case that event is missed
+  // (e.g. socket briefly disconnected).
+  const allWorkersFound = jobFullyBooked || (totalNeeded > 0 && totalFound >= totalNeeded);
 
   // Timer for waiting time
   useEffect(() => {
@@ -35,6 +64,18 @@ export default function WaitingPage() {
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
+
+  // Add a worker to the accepted list, de-duplicating by bookingId so a
+  // socket event and a REST refresh covering the same booking don't create
+  // two cards. This is what makes the flow correct when multiple workers
+  // are needed/accept: each acceptance just appends to the list.
+  const addAcceptedWorker = useCallback((worker: AcceptedWorker | null) => {
+    if (!worker) return;
+    setAcceptedWorkers((prev) => {
+      if (prev.some((w) => w.bookingId === worker.bookingId)) return prev;
+      return [...prev, worker];
+    });
+  }, []);
 
   // Check socket connection (if enabled)
   useEffect(() => {
@@ -66,6 +107,32 @@ export default function WaitingPage() {
     loadJob();
   }, [jobId]);
 
+  // Hydrate any workers who already accepted before this page loaded (e.g.
+  // the customer refreshed the page, or accepted happened before the socket
+  // connected). Without this, a page refresh would lose all accepted
+  // worker cards even though the bookings exist in the database.
+  useEffect(() => {
+    const loadBookings = async () => {
+      try {
+        const res = await getJobBookings(jobId);
+        const bookings = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
+        const normalized = bookings.map(normalizeBooking).filter(Boolean) as AcceptedWorker[];
+        if (normalized.length > 0) {
+          setAcceptedWorkers((prev) => {
+            const merged = [...prev];
+            for (const w of normalized) {
+              if (!merged.some((m) => m.bookingId === w.bookingId)) merged.push(w);
+            }
+            return merged;
+          });
+        }
+      } catch (err) {
+        console.error("[waiting-page] Failed to load existing bookings:", err);
+      }
+    };
+    loadBookings();
+  }, [jobId]);
+
   // Join customer room on socket connection (if enabled)
   useEffect(() => {
     if (!socketConnected) return;
@@ -79,6 +146,61 @@ export default function WaitingPage() {
     }
   }, [socketConnected]);
 
+  // Listen for real-time worker acceptance. Handles the multi-worker case
+  // naturally: every accepted requirement/worker fires its own event, and
+  // each one is appended to the list rather than replacing it.
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket) return;
+
+    const handleWorkerAccepted = (payload: any) => {
+      if (!payload || payload.jobId !== jobId) return;
+      console.log("[socket.io] worker:accepted", payload);
+      addAcceptedWorker({
+        bookingId: payload.bookingId,
+        requirementId: payload.requirementId,
+        worker: payload.worker,
+        skill_type: payload.requirement?.skill_type,
+      });
+
+      // Keep the requirement's filled count in sync so progress reflects
+      // reality even before the job as a whole is refetched.
+      setJob((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          job_requirement: prev.job_requirement?.map((r) =>
+            r.id === payload.requirementId
+              ? { ...r, worker_count_filled: payload.requirement?.worker_count_filled ?? r.worker_count_filled, status: payload.requirement?.status ?? r.status }
+              : r
+          ),
+        };
+      });
+    };
+
+    const handleJobFullyBooked = (payload: any) => {
+      if (!payload || payload.jobId !== jobId) return;
+      setJobFullyBooked(true);
+    };
+
+    const handleNoWorkers = (payload: any) => {
+      if (!payload || payload.jobId !== jobId) return;
+      setError(
+        "No workers are available right now for one of your requirements. You can keep waiting or cancel this request."
+      );
+    };
+
+    socket.on("worker:accepted", handleWorkerAccepted);
+    socket.on("job:fully_booked", handleJobFullyBooked);
+    socket.on("job:no_workers", handleNoWorkers);
+
+    return () => {
+      socket.off("worker:accepted", handleWorkerAccepted);
+      socket.off("job:fully_booked", handleJobFullyBooked);
+      socket.off("job:no_workers", handleNoWorkers);
+    };
+  }, [jobId, addAcceptedWorker]);
+
   // Handle cancellation
   const handleCancel = async () => {
     if (!confirm("Are you sure you want to cancel this job request?")) return;
@@ -86,11 +208,11 @@ export default function WaitingPage() {
     setCancelling(true);
     try {
       console.log(`[waiting-page] Cancelling job ${jobId}`);
-    //   await cancelJob(jobId);
+      await cancelJob(jobId);
 
       // Clean up socket (if enabled)
       disconnectSocket();
-        console.log("Socket disconnected on job cancellation");
+      console.log("Socket disconnected on job cancellation");
 
       // Redirect back
       router.push("/home");
@@ -113,59 +235,115 @@ export default function WaitingPage() {
     );
   }
 
-  if (error) {
-    return (
-      <main className="min-h-screen bg-[#FAFAFA]">
-        <TopBar title="Error" />
-        <div className="max-w-md mx-auto px-4 py-12">
-          <div className="bg-red-50 border border-red-200 rounded-xl p-6 flex flex-col items-center gap-4 text-center">
-            <AlertCircle className="text-red-500 w-12 h-12" />
-            <h2 className="text-lg font-semibold text-red-800">Something went wrong</h2>
-            <p className="text-red-600">{error}</p>
-            <button
-              onClick={() => router.push("/home")}
-              className="mt-4 px-6 py-2 bg-orange-500 text-white rounded-lg font-medium"
-            >
-              Go Home
-            </button>
-          </div>
-        </div>
-      </main>
-    );
-  }
-
   return (
     <main className="min-h-screen bg-[#FAFAFA] pb-40">
-      <TopBar title="Finding Workers" />
+      <TopBar title={allWorkersFound ? "Workers Found" : "Finding Workers"} />
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl flex items-start gap-2">
+            <AlertCircle className="w-5 h-5 mt-0.5 shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+
         {/* Status Indicator */}
         <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
           <div className="flex items-center gap-4">
             <div className="relative">
-              <motion.div
-                animate={{
-                  scale: [1, 1.3, 1],
-                  opacity: [0.3, 0.6, 0.3],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-                className="absolute -inset-3 bg-orange-200 rounded-full"
-              />
-              <div className="relative w-12 h-12 rounded-full bg-orange-500 flex items-center justify-center text-white">
-                <Clock className="w-6 h-6" />
+              {!allWorkersFound && (
+                <motion.div
+                  animate={{
+                    scale: [1, 1.3, 1],
+                    opacity: [0.3, 0.6, 0.3],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                  className="absolute -inset-3 bg-orange-200 rounded-full"
+                />
+              )}
+              <div
+                className={`relative w-12 h-12 rounded-full flex items-center justify-center text-white ${allWorkersFound ? "bg-green-500" : "bg-orange-500"
+                  }`}
+              >
+                {allWorkersFound ? (
+                  <CheckCircle2 className="w-6 h-6" />
+                ) : (
+                  <Clock className="w-6 h-6" />
+                )}
               </div>
             </div>
             <div>
-              <h3 className="font-semibold text-lg text-gray-800">Looking for workers...</h3>
+              <h3 className="font-semibold text-lg text-gray-800">
+                {allWorkersFound
+                  ? "All workers assigned!"
+                  : totalFound > 0
+                    ? "Finding remaining workers..."
+                    : "Looking for workers..."}
+              </h3>
               <p className="text-gray-500 text-sm">
-                We're finding the best workers for your job
+                {totalNeeded > 0
+                  ? `${totalFound} of ${totalNeeded} worker${totalNeeded > 1 ? "s" : ""} found`
+                  : "We're finding the best workers for your job"}
               </p>
             </div>
           </div>
         </div>
+
+        {/* Accepted Workers */}
+        <AnimatePresence>
+          {acceptedWorkers.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 px-1">
+                <Users size={16} className="text-orange-500" />
+                <h4 className="font-semibold text-gray-800">
+                  Assigned Worker{acceptedWorkers.length > 1 ? "s" : ""}
+                </h4>
+              </div>
+              {acceptedWorkers.map((aw) => (
+                <motion.div
+                  key={aw.bookingId}
+                  initial={{ opacity: 0, y: 15, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ duration: 0.3 }}
+                  className="overflow-hidden rounded-2xl border border-orange-100 bg-white shadow-sm"
+                >
+                  <div className="flex">
+                    <div className="w-1.5 bg-green-500" />
+                    <div className="flex-1 p-4 flex items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="font-semibold text-slate-900 truncate">
+                          {aw.worker?.name || "Worker"}
+                        </p>
+                        <div className="mt-1 flex items-center gap-3 text-sm text-slate-500">
+                          {aw.worker?.skill_type || aw.skill_type ? (
+                            <span>{aw.worker?.skill_type || aw.skill_type}</span>
+                          ) : null}
+                          {aw.worker?.worker_score != null && (
+                            <span className="flex items-center gap-1">
+                              <Star size={13} fill="#FDB022" className="text-[#FDB022]" />
+                              {Number(aw.worker.worker_score).toFixed(1)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      {aw.worker?.phone && (
+                        <a
+                          href={`tel:${aw.worker.phone}`}
+                          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-orange-100 text-orange-500"
+                        >
+                          <Phone size={18} />
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </AnimatePresence>
 
         {/* Socket Status - Only show if socket is enabled */}
         {(() => {
@@ -198,7 +376,7 @@ export default function WaitingPage() {
               <p><span className="font-medium">Status:</span> {job.status}</p>
               {job.job_requirement?.map((req, idx) => (
                 <p key={idx}>
-                  <span className="font-medium">{req.skill_type}:</span> {req.worker_count_needed} worker(s) at ₹{req.rate_per_day}/day
+                  <span className="font-medium">{req.skill_type}:</span> {req.worker_count_filled || 0}/{req.worker_count_needed} worker(s) at ₹{req.rate_per_day}/day
                 </p>
               ))}
             </div>
@@ -206,15 +384,27 @@ export default function WaitingPage() {
         )}
 
         {/* Cancel Button */}
-        <motion.button
-          whileTap={{ scale: 0.98 }}
-          onClick={handleCancel}
-          disabled={cancelling}
-          className="w-full flex items-center justify-center gap-2 bg-red-50 text-red-600 border border-red-200 rounded-xl py-3 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <X className="w-4 h-4" />
-          {cancelling ? "Cancelling..." : "Cancel Job Request"}
-        </motion.button>
+        {!allWorkersFound && (
+          <motion.button
+            whileTap={{ scale: 0.98 }}
+            onClick={handleCancel}
+            disabled={cancelling}
+            className="w-full flex items-center justify-center gap-2 bg-red-50 text-red-600 border border-red-200 rounded-xl py-3 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <X className="w-4 h-4" />
+            {cancelling ? "Cancelling..." : "Cancel Job Request"}
+          </motion.button>
+        )}
+
+        {allWorkersFound && (
+          <motion.button
+            whileTap={{ scale: 0.98 }}
+            onClick={() => router.push("/requests")}
+            className="w-full flex items-center justify-center gap-2 bg-orange-500 text-white rounded-xl py-3 font-medium"
+          >
+            View My Requests
+          </motion.button>
+        )}
       </div>
     </main>
   );
