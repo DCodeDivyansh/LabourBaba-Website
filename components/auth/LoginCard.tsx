@@ -9,10 +9,12 @@ import {
   ArrowRight,
   Lock,
 } from "lucide-react";
-import { clientLogin, setAuthToken, setCustomerId } from "@/lib/api/auth";
+import { clientLogin } from "@/lib/api/auth";
+import { useAuthStore } from "@/stores/authStore";
 
 export default function LoginCard() {
   const router = useRouter();
+  const setUser = useAuthStore((state) => state.setUser);
 
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
@@ -41,6 +43,23 @@ export default function LoginCard() {
         password,
       });
       console.log("Login response:", response);
+      
+      // Store user data in auth store
+      if (response?.data) {
+        const customerId = (response.data?.id as string) || (response.customer_id as string) || "";
+        const userName = (response.data?.name as string) || "";
+        const userPhone = "+91" + phone;
+        
+        if (customerId) {
+          setUser({
+            id: customerId,
+            name: userName || "User",
+            phone: userPhone,
+            customer_id: customerId,
+          });
+        }
+      }
+      
       router.push("/home");
     } catch (err: any) {
       setError(err.response?.data?.message || "Something went wrong");

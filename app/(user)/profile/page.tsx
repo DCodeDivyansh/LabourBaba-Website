@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 import { motion } from "framer-motion";
 import {
@@ -17,6 +18,7 @@ import {
 import TopNavbar from "@/components/TopNavbar";
 import BottomNav from "@/components/BottomNav";
 import { logout } from "@/lib/api/auth";
+import { useAuthStore } from "@/stores/authStore";
 
 const menuItems = [
   {
@@ -47,6 +49,25 @@ const menuItems = [
 
 export default function ProfilePage() {
   const router = useRouter();
+  const user = useAuthStore((state) => state.user);
+  
+  // Get initials from name
+  const getInitials = (name: string) => {
+    if (!name) return "JD";
+    const names = name.split(" ");
+    if (names.length === 1) return names[0].substring(0, 2).toUpperCase();
+    return (names[0][0] + names[names.length - 1][0]).toUpperCase();
+  };
+  
+  // Format phone number
+  const formatPhone = (phone: string) => {
+    if (!phone) return "+91 98765 43210";
+    if (phone.startsWith("+91")) {
+      return phone.replace("+91", "+91 ").replace(/(\d{5})(\d{5})/, "$1 $2");
+    }
+    return "+91 " + phone.replace(/(\d{5})(\d{5})/, "$1 $2");
+  };
+  
   return (
     <main className="min-h-screen bg-[#F8F9FB] pb-24 relative overflow-hidden">
       {/* Background Glow */}
@@ -92,7 +113,7 @@ export default function ProfilePage() {
                 shadow-lg
               "
             >
-              JD
+              {getInitials(user?.name || "")}
             </div>
 
             <button
@@ -115,11 +136,11 @@ export default function ProfilePage() {
             </button>
           </div>
 
-          <h2 className="mt-3 text-3xl font-bold text-[#1F2937]">John Doe</h2>
+          <h2 className="mt-3 text-3xl font-bold text-[#1F2937]">{user?.name || "John Doe"}</h2>
 
           <div className="mt-1.5 flex items-center justify-center gap-2 text-[#6B7280]">
             <Phone size={16} />
-            <span>+91 98765 43210</span>
+            <span>{formatPhone(user?.phone || "")}</span>
           </div>
         </motion.div>
 

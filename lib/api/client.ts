@@ -1,5 +1,6 @@
 "use server";
 import { apiCall } from "./api";
+import { getCustomerId } from "./auth";
 
 export interface Customer {
   id: string;
@@ -21,5 +22,13 @@ export async function getClients() {
 
 export async function addClient(data: CreateCustomerRequest) {
   const response = await apiCall.post("/api/clients/add", data);
+  return response.data;
+}
+
+export async function getCurrentClient() {
+  const customerId = await getCustomerId();
+  if (!customerId) return null;
+  
+  const response = await apiCall.get(`/api/clients/${customerId}`);
   return response.data;
 }

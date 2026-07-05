@@ -20,6 +20,7 @@ export interface RefreshTokenRequest {
 export interface AuthResponse {
   token: string;
   refreshToken?: string;
+  customer_id?: string;
   data?: Record<string, unknown>;
 }
 // export interface
