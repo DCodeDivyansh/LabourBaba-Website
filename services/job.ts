@@ -107,7 +107,10 @@ async function getJobById(jobId: string): Promise<Job> {
     const res = await apiCall.get(`/api/jobs/${jobId}`,
     );
     console.log("Fetched job:", res.data);
-    return res.data;
+    // The backend responds with { success, data: job }. Callers (e.g. the
+    // waiting page) expect the Job object itself (job.location, etc.), so
+    // unwrap it here instead of returning the envelope.
+    return res.data?.data ?? res.data;
   } catch (error) {
     console.error("Error getting job:", error);
     throw error as Error;
@@ -116,7 +119,7 @@ async function getJobById(jobId: string): Promise<Job> {
 
 async function cancelJob(jobId: string) {
   try {
-    const res = await apiCall.post(`/api/jobs/${jobId}/cancel`);
+    const res = await apiCall.patch(`/api/jobs/${jobId}/cancel`);
     return res.data;
   } catch (error) {
     console.error("Error cancelling job:", error);
