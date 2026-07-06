@@ -25,8 +25,24 @@ function normalizeBooking(b: any): AcceptedWorker | null {
       phone: b.worker.phone,
       skill_type: b.worker.skill_type,
       worker_score: b.worker.worker_score,
+      latitude: b.worker.latitude,
+      longitude: b.worker.longitude,
     },
   };
+}
+
+function distanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371; // Radius of the earth in km
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
 }
 
 export default function WaitingPage() {
@@ -329,45 +345,65 @@ export default function WaitingPage() {
                   Assigned Worker{acceptedWorkers.length > 1 ? "s" : ""}
                 </h4>
               </div>
-              {acceptedWorkers.map((aw) => (
-                <motion.div
-                  key={aw.bookingId}
-                  initial={{ opacity: 0, y: 15, scale: 0.98 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{ duration: 0.3 }}
-                  className="overflow-hidden rounded-2xl border border-orange-100 bg-white shadow-sm"
-                >
-                  <div className="flex">
-                    <div className="w-1.5 bg-green-500" />
-                    <div className="flex-1 p-4 flex items-center justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="font-semibold text-slate-900 truncate">
-                          {aw.worker?.name || "Worker"}
-                        </p>
-                        <div className="mt-1 flex items-center gap-3 text-sm text-slate-500">
-                          {aw.worker?.skill_type || aw.skill_type ? (
-                            <span>{aw.worker?.skill_type || aw.skill_type}</span>
-                          ) : null}
-                          {aw.worker?.worker_score != null && (
-                            <span className="flex items-center gap-1">
-                              <Star size={13} fill="#FDB022" className="text-[#FDB022]" />
-                              {Number(aw.worker.worker_score).toFixed(1)}
-                            </span>
-                          )}
+              {acceptedWorkers.map((aw) => {
+                const distance =
+                  job?.latitude != null &&
+                  job?.longitude != null &&
+                  aw.worker?.latitude != null &&
+                  aw.worker?.longitude != null
+                    ? distanceKm(
+                        job.latitude,
+                        job.longitude,
+                        aw.worker.latitude,
+                        aw.worker.longitude
+                      ).toFixed(1)
+                    : null;
+
+                return (
+                  <motion.div
+                    key={aw.bookingId}
+                    initial={{ opacity: 0, y: 15, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ duration: 0.3 }}
+                    className="overflow-hidden rounded-2xl border border-orange-100 bg-white shadow-sm"
+                  >
+                    <div className="flex">
+                      <div className="w-1.5 bg-green-500" />
+                      <div className="flex-1 p-4 flex items-center justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="font-semibold text-slate-900 truncate">
+                            {aw.worker?.name || "Worker"}
+                          </p>
+                          <div className="mt-1 flex items-center gap-3 text-sm text-slate-500">
+                            {aw.worker?.skill_type || aw.skill_type ? (
+                              <span>{aw.worker?.skill_type || aw.skill_type}</span>
+                            ) : null}
+                            {aw.worker?.worker_score != null && (
+                              <span className="flex items-center gap-1">
+                                <Star size={13} fill="#FDB022" className="text-[#FDB022]" />
+                                {Number(aw.worker.worker_score).toFixed(1)}
+                              </span>
+                            )}
+                            {distance != null && (
+                              <span className="text-orange-500 font-medium">
+                                • {distance} km away
+                              </span>
+                            )}
+                          </div>
                         </div>
+                        {aw.worker?.phone && (
+                          <a
+                            href={`tel:${aw.worker.phone}`}
+                            className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-orange-100 text-orange-500"
+                          >
+                            <Phone size={18} />
+                          </a>
+                        )}
                       </div>
-                      {aw.worker?.phone && (
-                        <a
-                          href={`tel:${aw.worker.phone}`}
-                          className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-orange-100 text-orange-500"
-                        >
-                          <Phone size={18} />
-                        </a>
-                      )}
                     </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                );
+              })}
             </div>
           )}
         </AnimatePresence>
