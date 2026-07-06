@@ -19,6 +19,8 @@ export interface AcceptedWorker {
     phone: string;
     skill_type?: string;
     worker_score?: number;
+    latitude?: number;
+    longitude?: number;
   };
   skill_type?: string;
 }
