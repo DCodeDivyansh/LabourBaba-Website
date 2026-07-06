@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { getSocket, disconnectSocket } from "@/services/socket";
 import { getClientCustomerId } from "@/lib/client-cookies";
-import { X, Clock, AlertCircle, Phone, Star, Users, CheckCircle2 } from "lucide-react";
+import { X, Clock, AlertCircle, Phone, Star, Users, CheckCircle2, Plus } from "lucide-react";
 import TopBar from "@/components/CommonHeader";
 import { motion, AnimatePresence } from "framer-motion";
 import { getJobById, cancelJob } from "@/services/job";
@@ -41,6 +41,8 @@ export default function WaitingPage() {
   const [waitingTime, setWaitingTime] = useState(0);
   const [acceptedWorkers, setAcceptedWorkers] = useState<AcceptedWorker[]>([]);
   const [jobFullyBooked, setJobFullyBooked] = useState(false);
+  // Requirement IDs the backend has told us have no workers left to try.
+  const [exhaustedRequirementIds, setExhaustedRequirementIds] = useState<string[]>([]);
 
   const totalNeeded =
     job?.job_requirement?.reduce((sum, r) => sum + (r.worker_count_needed || 0), 0) || 0;
@@ -50,13 +52,31 @@ export default function WaitingPage() {
   // (e.g. socket briefly disconnected).
   const allWorkersFound = jobFullyBooked || (totalNeeded > 0 && totalFound >= totalNeeded);
 
-  // Timer for waiting time
+  // A job can have multiple requirements (e.g. 2 masons + 1 electrician).
+  // "No workers available" only ends the whole search once every
+  // requirement that isn't already filled has run out of workers - if one
+  // requirement is exhausted but another is still being searched, we keep
+  // the timer running for that one.
+  const unfilledRequirementIds =
+    job?.job_requirement?.filter((r) => r.status !== "filled").map((r) => r.id) || [];
+  const noWorkersAvailable =
+    unfilledRequirementIds.length > 0 &&
+    unfilledRequirementIds.every((id) => exhaustedRequirementIds.includes(id));
+
+  // The timer should stop the moment there's nothing left to actively wait
+  // for - either everyone needed has been found, or the backend told us
+  // there's no one left to dispatch to.
+  const searchEnded = allWorkersFound || noWorkersAvailable;
+
+  // Timer for waiting time - stops as soon as the search is over (worker(s)
+  // found, or no workers available), instead of running forever.
   useEffect(() => {
+    if (searchEnded) return;
     const timer = setInterval(() => {
       setWaitingTime((prev) => prev + 1);
     }, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [searchEnded]);
 
   // Format waiting time
   const formatTime = (seconds: number) => {
@@ -185,6 +205,9 @@ export default function WaitingPage() {
 
     const handleNoWorkers = (payload: any) => {
       if (!payload || payload.jobId !== jobId) return;
+      setExhaustedRequirementIds((prev) =>
+        prev.includes(payload.requirementId) ? prev : [...prev, payload.requirementId]
+      );
       setError(
         "No workers are available right now for one of your requirements. You can keep waiting or cancel this request."
       );
@@ -237,11 +260,11 @@ export default function WaitingPage() {
 
   return (
     <main className="min-h-screen bg-[#FAFAFA] pb-40">
-      <TopBar title={allWorkersFound ? "Workers Found" : "Finding Workers"} />
+      <TopBar title={allWorkersFound ? "Workers Found" : noWorkersAvailable ? "No Workers Available" : "Finding Workers"} />
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl flex items-start gap-2">
-            <AlertCircle className="w-5 h-5 mt-0.5 shrink-0" />
+            <AlertCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
             <span>{error}</span>
           </div>
         )}
@@ -250,7 +273,7 @@ export default function WaitingPage() {
         <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
           <div className="flex items-center gap-4">
             <div className="relative">
-              {!allWorkersFound && (
+              {!searchEnded && (
                 <motion.div
                   animate={{
                     scale: [1, 1.3, 1],
@@ -265,11 +288,13 @@ export default function WaitingPage() {
                 />
               )}
               <div
-                className={`relative w-12 h-12 rounded-full flex items-center justify-center text-white ${allWorkersFound ? "bg-green-500" : "bg-orange-500"
+                className={`relative w-12 h-12 rounded-full flex items-center justify-center text-white ${allWorkersFound ? "bg-green-500" : noWorkersAvailable ? "bg-gray-400" : "bg-orange-500"
                   }`}
               >
                 {allWorkersFound ? (
                   <CheckCircle2 className="w-6 h-6" />
+                ) : noWorkersAvailable ? (
+                  <AlertCircle className="w-6 h-6" />
                 ) : (
                   <Clock className="w-6 h-6" />
                 )}
@@ -279,9 +304,11 @@ export default function WaitingPage() {
               <h3 className="font-semibold text-lg text-gray-800">
                 {allWorkersFound
                   ? "All workers assigned!"
-                  : totalFound > 0
-                    ? "Finding remaining workers..."
-                    : "Looking for workers..."}
+                  : noWorkersAvailable
+                    ? "No workers available"
+                    : totalFound > 0
+                      ? "Finding remaining workers..."
+                      : "Looking for workers..."}
               </h3>
               <p className="text-gray-500 text-sm">
                 {totalNeeded > 0
@@ -332,7 +359,7 @@ export default function WaitingPage() {
                       {aw.worker?.phone && (
                         <a
                           href={`tel:${aw.worker.phone}`}
-                          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-orange-100 text-orange-500"
+                          className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-orange-100 text-orange-500"
                         >
                           <Phone size={18} />
                         </a>
@@ -383,8 +410,8 @@ export default function WaitingPage() {
           </div>
         )}
 
-        {/* Cancel Button */}
-        {!allWorkersFound && (
+        {/* Cancel Button - only while still actively searching */}
+        {!allWorkersFound && !noWorkersAvailable && (
           <motion.button
             whileTap={{ scale: 0.98 }}
             onClick={handleCancel}
@@ -393,6 +420,19 @@ export default function WaitingPage() {
           >
             <X className="w-4 h-4" />
             {cancelling ? "Cancelling..." : "Cancel Job Request"}
+          </motion.button>
+        )}
+
+        {/* Once there are no workers left to wait for, swap Cancel for a
+            direct path to try again with a new request. */}
+        {noWorkersAvailable && !allWorkersFound && (
+          <motion.button
+            whileTap={{ scale: 0.98 }}
+            onClick={() => router.push("/create-request")}
+            className="w-full flex items-center justify-center gap-2 bg-orange-500 text-white rounded-xl py-3 font-medium"
+          >
+            <Plus className="w-4 h-4" />
+            Create New Request
           </motion.button>
         )}
 
