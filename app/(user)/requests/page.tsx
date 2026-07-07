@@ -1,4 +1,4 @@
-import TopNavbar from "@/components/TopNavbar";
+import CommonHeader from "@/components/CommonHeader";
 import BottomNav from "@/components/BottomNav";
 import RequestsList from "@/components/RequestsList";
 import { getJobs } from "@/services/job";
@@ -15,8 +15,8 @@ export default async function RequestsPage() {
   }
   return (
     <main className="min-h-screen bg-[#F8F9FB] pb-24">
-      <TopNavbar />
-      <section className="mx-auto max-w-md px-4 pt-20">
+      <CommonHeader title="My Requests" />
+      <section className="mx-auto max-w-md px-4 pt-6">
         <RequestsList jobs={jobs} />
       </section>
       <BottomNav />
