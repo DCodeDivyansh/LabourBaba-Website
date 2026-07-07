@@ -2,10 +2,21 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { useAuthStore } from "@/stores/authStore";
 
 export default function TopNavbar() {
   const [showNavbar, setShowNavbar] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const user = useAuthStore((state) => state.user);
+
+  // Compute initials
+  const initials = user?.name
+    ? user.name
+        .split(" ")
+        .slice(0, 2)
+        .map((w) => w[0]?.toUpperCase() || "")
+        .join("")
+    : "?";
 
   useEffect(() => {
     const controlNavbar = () => {
@@ -47,14 +58,8 @@ export default function TopNavbar() {
       <div className="flex items-center justify-between px-4 py-3">
         <Image src="/logo.svg" alt="LabourBaba" width={180} height={50} />
 
-        <div className="w-10 h-10 rounded-full bg-gray-200">
-          <img
-            src="https://i.pravatar.cc/100"
-            alt="Profile"
-            width={40}
-            height={40}
-            className="w-full h-full object-cover rounded-full"
-          />
+        <div className="w-10 h-10 rounded-full bg-orange-50 border border-orange-100 flex items-center justify-center font-extrabold text-orange-500 text-sm select-none shadow-inner">
+          {initials}
         </div>
       </div>
     </header>
