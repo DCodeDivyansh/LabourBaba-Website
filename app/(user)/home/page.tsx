@@ -145,6 +145,7 @@ export default function HomePage() {
   const router = useRouter();
   const [showTracking, setShowTracking] = useState(false);
   const [activeBooking, setActiveBooking] = useState<any | null>(null);
+  const [activeJob, setActiveJob] = useState<any | null>(null);
   const [activeSlide, setActiveSlide] = useState(0);
   const [hideNotificationBanner, setHideNotificationBanner] = useState(false);
   const { permission, requestPermission, isLoading, error, isFCMEnabled } = useFCM();
@@ -191,10 +192,17 @@ export default function HomePage() {
             b.status !== "cancelled"
         );
 
+        setActiveJob(mostRecentJob);
+
         if (active && active.worker) {
           setActiveBooking(active);
           setShowTracking(true);
+        } else if (mostRecentJob.status === "OPEN" || mostRecentJob.status === "PENDING") {
+          setActiveBooking(null);
+          setShowTracking(true);
         } else {
+          setActiveBooking(null);
+          setActiveJob(null);
           setShowTracking(false);
         }
       } catch (err) {
@@ -406,7 +414,13 @@ export default function HomePage() {
               initial="hidden"
               animate="show"
               exit={{ opacity: 0, scale: 0.97 }}
-              onClick={() => router.push(`/WorkerProfile/${activeBooking.id}`)}
+              onClick={() => {
+                if (activeBooking) {
+                  router.push(`/WorkerProfile/${activeBooking.id}`);
+                } else if (activeJob) {
+                  router.push(`/waiting/${activeJob.id}`);
+                }
+              }}
               className="mt-5 bg-white rounded-2xl border p-4 cursor-pointer hover:border-orange-200 transition"
               style={{ borderColor: BORDER }}
             >
@@ -418,7 +432,7 @@ export default function HomePage() {
                     animate={{ opacity: [1, 0.3, 1] }}
                     transition={{ duration: 1.6, repeat: Infinity }}
                   />
-                  Dispatch active
+                  {activeBooking ? "Dispatch active" : "Search active"}
                 </span>
                 <button
                   onClick={(e) => {
@@ -431,7 +445,7 @@ export default function HomePage() {
                 </button>
               </div>
 
-              {activeBooking && activeBooking.worker && (
+              {activeBooking && activeBooking.worker ? (
                 <div className="mt-3 flex items-center gap-3">
                   <div className="w-11 h-11 rounded-full bg-orange-50 flex items-center justify-center shrink-0 text-orange-500 font-bold border border-orange-100 overflow-hidden">
                     {activeBooking.worker.avatar ? (
@@ -467,7 +481,29 @@ export default function HomePage() {
                     </p>
                   </div>
                 </div>
-              )}
+              ) : activeJob ? (
+                <div className="mt-3 flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-full bg-orange-50 flex items-center justify-center shrink-0 text-orange-500 font-bold border border-orange-100 overflow-hidden animate-pulse">
+                    <Zap size={18} className="fill-orange-500 text-orange-500" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold truncate" style={{ color: INK }}>
+                      Looking for workers...
+                    </p>
+                    <p className="text-xs truncate" style={{ color: MUTED }}>
+                      {activeJob.location}
+                    </p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className="text-sm font-semibold animate-pulse" style={{ color: ACCENT }}>
+                      Searching
+                    </p>
+                    <p className="flex items-center gap-1 text-[11px] justify-end" style={{ color: MUTED }}>
+                      Status
+                    </p>
+                  </div>
+                </div>
+              ) : null}
             </motion.div>
           )}
         </AnimatePresence>

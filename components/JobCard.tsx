@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   MapPin,
@@ -10,10 +11,13 @@ import {
   CheckCircle2,
   AlertCircle,
   Circle,
+  Zap,
 } from "lucide-react";
 import { Job } from "@/lib/types";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
+import { getJobBookings } from "@/lib/api/job";
+
 interface Props {
   job: Job;
   index: number;
@@ -21,6 +25,31 @@ interface Props {
 
 export default function JobCard({ job, index }: Props) {
   const router = useRouter();
+  const [booking, setBooking] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchBooking = async () => {
+      try {
+        const bookingsRes = await getJobBookings(job.id);
+        const bookings = Array.isArray(bookingsRes?.data)
+          ? bookingsRes.data
+          : Array.isArray(bookingsRes)
+            ? bookingsRes
+            : [];
+        if (bookings.length > 0) {
+          // Take the most recent booking of the job
+          setBooking(bookings[bookings.length - 1]);
+        }
+      } catch (err) {
+        console.error("Failed to load booking for job:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBooking();
+  }, [job.id]);
+
   const getStatusColor = (status: string) => {
     switch (status.toUpperCase()) {
       case "OPEN":
@@ -39,7 +68,23 @@ export default function JobCard({ job, index }: Props) {
   };
 
   const statusColors = getStatusColor(job.status);
-  const primaryRequirement = job.job_requirement[0];
+  const primaryRequirement = job.job_requirement?.[0];
+
+  const handleViewDetails = () => {
+    if (booking) {
+      if (job.status === "COMPLETED") {
+        router.push(`/job-completed/${booking.id}`);
+      } else if (job.status === "CANCELLED") {
+        router.push(`/job-cancelled/${booking.id}`);
+      } else {
+        router.push(`/WorkerProfile/${booking.id}`);
+      }
+    } else {
+      if (job.status === "OPEN" || job.status === "PENDING") {
+        router.push(`/waiting/${job.id}`);
+      }
+    }
+  };
 
   return (
     <motion.div
@@ -101,6 +146,32 @@ export default function JobCard({ job, index }: Props) {
             </div>
           </div>
 
+          {/* Worker Info if Booked */}
+          {booking && booking.worker && (
+            <div className="mt-3.5 flex items-center gap-2.5 rounded-xl bg-orange-50/50 p-2.5 border border-orange-100/50">
+              <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center font-bold text-orange-600 text-xs shrink-0 overflow-hidden border border-orange-200">
+                {booking.worker.avatar ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={booking.worker.avatar} alt={booking.worker.name} className="w-full h-full object-cover" />
+                ) : (
+                  booking.worker.name
+                    .split(" ")
+                    .slice(0, 2)
+                    .map((w: string) => w[0]?.toUpperCase() || "")
+                    .join("")
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-semibold text-slate-800 truncate">
+                  Worker: {booking.worker.name}
+                </p>
+                <p className="text-[10px] text-slate-500">
+                  Category: {booking.worker.skill_type || primaryRequirement?.skill_type || "Labour"}
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Requirements Summary */}
           <div className="mt-4 grid grid-cols-2 gap-3">
             <div className="rounded-lg bg-slate-50 p-3">
@@ -135,6 +206,7 @@ export default function JobCard({ job, index }: Props) {
           <motion.button
             whileTap={{ scale: 0.96 }}
             whileHover={{ scale: 1.02 }}
+            onClick={handleViewDetails}
             className="
               w-full
               rounded-full
@@ -145,12 +217,11 @@ export default function JobCard({ job, index }: Props) {
               font-semibold
               text-white
               shadow-lg
+              flex items-center justify-center gap-2
             "
           >
-            <button onClick={() => router.push(`/job/${job.id}`)} className="flex items-center justify-center gap-2">
-              View Details
-              <ChevronRight size={18} />
-            </button>
+            View Details
+            <ChevronRight size={18} />
           </motion.button>
         </div>
       </div>
