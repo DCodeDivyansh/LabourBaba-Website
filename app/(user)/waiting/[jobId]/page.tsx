@@ -154,20 +154,15 @@ export default function WaitingPage() {
         const bookings = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
         const normalized = bookings.map(normalizeBooking).filter(Boolean) as AcceptedWorker[];
         if (normalized.length > 0) {
-          setAcceptedWorkers((prev) => {
-            const merged = [...prev];
-            for (const w of normalized) {
-              if (!merged.some((m) => m.bookingId === w.bookingId)) merged.push(w);
-            }
-            return merged;
-          });
+          const firstBooking = normalized[0];
+          router.push(`/WorkerProfile/${firstBooking.bookingId}`);
         }
       } catch (err) {
         console.error("[waiting-page] Failed to load existing bookings:", err);
       }
     };
     loadBookings();
-  }, [jobId]);
+  }, [jobId, router]);
 
   // Join customer room on socket connection (if enabled)
   useEffect(() => {
@@ -192,26 +187,7 @@ export default function WaitingPage() {
     const handleWorkerAccepted = (payload: any) => {
       if (!payload || payload.jobId !== jobId) return;
       console.log("[socket.io] worker:accepted", payload);
-      addAcceptedWorker({
-        bookingId: payload.bookingId,
-        requirementId: payload.requirementId,
-        worker: payload.worker,
-        skill_type: payload.requirement?.skill_type,
-      });
-
-      // Keep the requirement's filled count in sync so progress reflects
-      // reality even before the job as a whole is refetched.
-      setJob((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          job_requirement: prev.job_requirement?.map((r) =>
-            r.id === payload.requirementId
-              ? { ...r, worker_count_filled: payload.requirement?.worker_count_filled ?? r.worker_count_filled, status: payload.requirement?.status ?? r.status }
-              : r
-          ),
-        };
-      });
+      router.push(`/WorkerProfile/${payload.bookingId}`);
     };
 
     const handleJobFullyBooked = (payload: any) => {
@@ -365,7 +341,8 @@ export default function WaitingPage() {
                     initial={{ opacity: 0, y: 15, scale: 0.98 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     transition={{ duration: 0.3 }}
-                    className="overflow-hidden rounded-2xl border border-orange-100 bg-white shadow-sm"
+                    onClick={() => router.push(`/WorkerProfile/${aw.bookingId}`)}
+                    className="overflow-hidden rounded-2xl border border-orange-100 bg-white shadow-sm cursor-pointer hover:border-orange-200 hover:shadow-md transition"
                   >
                     <div className="flex">
                       <div className="w-1.5 bg-green-500" />
