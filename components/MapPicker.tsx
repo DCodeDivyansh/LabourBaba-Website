@@ -18,10 +18,12 @@ import { getSavedLocation, saveLocation } from "@/lib/location-storage";
 
 interface MapPickerProps {
   initialPosition?: [number, number];
+  onLocationSelect?: (location: { lat: number; lng: number; address?: string }) => void;
 }
 
 export default function MapPicker({
   initialPosition = [26.8467, 80.9462], // Lucknow
+  onLocationSelect,
 }: MapPickerProps) {
   const [position, setPosition] =
     useState<[number, number]>(initialPosition);
@@ -52,10 +54,15 @@ export default function MapPicker({
       setAddress(result);
       // Save the new address to localStorage
       saveLocation(position[0], position[1], result);
+
+      // Notify parent selection
+      if (onLocationSelect) {
+        onLocationSelect({ lat: position[0], lng: position[1], address: result });
+      }
     };
 
     fetchAddress();
-  }, [position]);
+  }, [position, onLocationSelect]);
 
   return (
     <div className="space-y-5">
@@ -70,6 +77,9 @@ export default function MapPicker({
           setAddress(newAddress);
           // Save when location and address immediately when selected from search
           saveLocation(newPosition[0], newPosition[1], newAddress);
+          if (onLocationSelect) {
+            onLocationSelect({ lat: newPosition[0], lng: newPosition[1], address: newAddress });
+          }
         }}
       />
 
