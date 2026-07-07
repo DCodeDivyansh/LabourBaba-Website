@@ -2,76 +2,151 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import {
-  ChevronDown,
-  MapPin,
-  Sun,
-} from "lucide-react";
-import { getSavedLocation } from "@/lib/location-storage";
-import { useAuthStore } from "@/stores/authStore";
+import { Sun, CloudSun, MoonStar, Cloud, CloudRain, MapPin } from "lucide-react";
 
-export default function GreetingSection() {
-  const [savedLocation, setSavedLocation] = useState("");
-  const user = useAuthStore((state) => state.user);
+const INK = "#16181D";
+const MUTED = "#6B7280";
+const BORDER = "#E6E6E2";
+const ACCENT = "#FF5A1F";
+const ACCENT_TINT = "rgba(255, 90, 31, 0.10)";
+
+type WeatherCondition = "sunny" | "cloudy" | "rainy" | "clear-night";
+
+interface GreetingSectionProps {
+  /** Person's display name. Falls back to a generic greeting if omitted. */
+  userName?: string;
+  /** e.g. "Lucknow, UP" — pass in real reverse-geocoded location once wired up. */
+  location?: string;
+  temperatureC?: number;
+  weatherCondition?: WeatherCondition;
+}
+
+function getGreeting(hour: number) {
+  if (hour < 12) return { text: "Good morning", Icon: Sun };
+  if (hour < 17) return { text: "Good afternoon", Icon: CloudSun };
+  return { text: "Good evening", Icon: MoonStar };
+}
+
+function getWeatherIcon(condition: WeatherCondition) {
+  switch (condition) {
+    case "sunny":
+      return Sun;
+    case "cloudy":
+      return Cloud;
+    case "rainy":
+      return CloudRain;
+    case "clear-night":
+      return MoonStar;
+    default:
+      return Sun;
+  }
+}
+
+const weatherLabel: Record<WeatherCondition, string> = {
+  sunny: "Sunny",
+  cloudy: "Cloudy",
+  rainy: "Rain",
+  "clear-night": "Clear",
+};
+
+export default function GreetingSection({
+  userName = "there",
+  location = "Lucknow, UP",
+  temperatureC = 34,
+  weatherCondition = "sunny",
+}: GreetingSectionProps) {
+  const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => {
-    const location = getSavedLocation();
-    setSavedLocation(location?.address || "");
+    setNow(new Date());
   }, []);
+
+  const hour = now ? now.getHours() : 9;
+  const { text, Icon } = getGreeting(hour);
+  const WeatherIcon = getWeatherIcon(weatherCondition);
+
+  const dateStr = now
+    ? now.toLocaleDateString("en-IN", { weekday: "long", day: "2-digit", month: "short" })
+    : "";
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 14 }}
+      initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="relative rounded-3xl overflow-hidden bg-[#FFF8F4] p-5 shadow-md"
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      className="bg-white rounded-2xl border p-4"
+      style={{ borderColor: BORDER }}
     >
-      <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#FF5404]/25 blur-3xl rounded-full" />
-
-      <div className="relative flex items-start justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-black flex items-center gap-1.5">
-            Good Morning, {user?.name || "Guest"}
-            <motion.span
-              animate={{ rotate: [0, 20, -10, 20, 0] }}
-              transition={{
-                duration: 1.4,
-                repeat: Infinity,
-                repeatDelay: 2.5,
-              }}
-              className="inline-block origin-[70%_70%]"
-            >
-              👋
-            </motion.span>
-          </h1>
-
-          <p className="mt-1 text-sm text-black/70 flex items-center gap-1.5">
-            <Sun size={14} className="text-amber-400" />
-            28°C, Clear skies in Mumbai
+      {/* Greeting row */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <motion.h1
+            key={text}
+            initial={{ opacity: 0, x: -6 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.35, delay: 0.1 }}
+            className="text-xl font-semibold tracking-tight truncate"
+            style={{ color: INK }}
+          >
+            {text}, {userName}
+          </motion.h1>
+          <p className="mt-1 text-xs tracking-wide" style={{ color: MUTED }}>
+            {dateStr}
           </p>
         </div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.35, delay: 0.15 }}
+          className="w-11 h-11 shrink-0 rounded-full flex items-center justify-center"
+          style={{ background: ACCENT_TINT }}
+        >
+          <Icon size={19} style={{ color: ACCENT }} strokeWidth={1.8} />
+        </motion.div>
       </div>
 
-      <motion.button
-        whileTap={{ scale: 0.98 }}
-        className="relative mt-4 w-full bg-black/5 hover:bg-white/15 backdrop-blur-sm rounded-2xl p-3 flex items-center gap-3 transition-colors"
+      {/* Detail chips: location + weather */}
+      <motion.div
+        initial="hidden"
+        animate="show"
+        variants={{ show: { transition: { staggerChildren: 0.08, delayChildren: 0.22 } } }}
+        className="mt-3.5 grid grid-cols-2 gap-2"
       >
-        <div className="w-8 h-8 shrink-0 rounded-full bg-[#FF5404]/20 flex items-center justify-center">
-          <MapPin size={15} className="text-[#FF8A4C]" />
-        </div>
+        <motion.div
+          variants={{ hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0 } }}
+          transition={{ duration: 0.3 }}
+          className="flex items-center gap-2 rounded-xl border px-3 py-2"
+          style={{ borderColor: BORDER }}
+        >
+          <MapPin size={14} style={{ color: MUTED }} strokeWidth={1.8} />
+          <div className="min-w-0">
+            <p className="text-xs font-medium truncate" style={{ color: INK }}>
+              {location}
+            </p>
+            <p className="text-[10px]" style={{ color: MUTED }}>
+              Current location
+            </p>
+          </div>
+        </motion.div>
 
-        <div className="flex-1 text-left min-w-0">
-          <p className="text-[9.5px] font-semibold tracking-wider text-black/50 uppercase">
-            Current Location
-          </p>
-
-          <p className="text-[13px] font-medium text-black truncate">
-            {savedLocation}
-          </p>
-        </div>
-
-        <ChevronDown size={16} className="text-black/50 shrink-0" />
-      </motion.button>
+        <motion.div
+          variants={{ hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0 } }}
+          transition={{ duration: 0.3 }}
+          className="flex items-center gap-2 rounded-xl border px-3 py-2"
+          style={{ borderColor: BORDER }}
+        >
+          <WeatherIcon size={14} style={{ color: MUTED }} strokeWidth={1.8} />
+          <div className="min-w-0">
+            <p className="text-xs font-medium truncate" style={{ color: INK }}>
+              {temperatureC}°C · {weatherLabel[weatherCondition]}
+            </p>
+            <p className="text-[10px]" style={{ color: MUTED }}>
+              Weather now
+            </p>
+          </div>
+        </motion.div>
+      </motion.div>
     </motion.div>
   );
 }
