@@ -34,12 +34,6 @@ export async function clientSignup(data: SignupRequest): Promise<AuthResponse> {
     "/api/clients/signup",
     data
   );
-  if (response.data.token) {
-    await setAuthToken(response.data.token);
-  }
-  if (response.data.customer_id || (response.data.data && response.data.data.customer_id)) {
-    await setCustomerId(response.data.customer_id || response.data.data.customer_id);
-  }
   return response.data;
 }
 

@@ -26,55 +26,40 @@ export default function SignupPage() {
   const [error, setError] = useState("");
 
   const handleSignup = async () => {
-  if (!name || !phone || !password) {
-    setError("Please fill in all required fields");
-    return;
-  }
-
-  setLoading(true);
-  setError("");
-
-  try {
-    console.log("Starting signup...");
-
-    const response = await clientSignup({
-      phone: "+91" + phone,
-      name,
-      password,
-    });
-
-    console.log("Signup Success:", response);
-    
-    // Store user data in auth store
-    const customerId = response.customer_id || (response.data?.customer_id as string) || "";
-    const userId = (response.data?.id as string) || customerId;
-    const userName = (response.data?.name as string) || name;
-    const userPhone = "+91" + phone;
-    
-    if (customerId) {
-      setUser({
-        id: userId,
-        name: userName,
-        phone: userPhone,
-        customer_id: customerId,
-      });
+    if (!name || !phone || !password) {
+      setError("Please fill in all required fields");
+      return;
     }
-    
-    console.log("Redirecting to Home...");
-    router.replace("/home");
-  } catch (err: any) {
-    console.error("Signup error:", err);
-    console.error("Error response:", err?.response?.data);
 
-    setError(
-      err?.response?.data?.message ||
-      err?.message ||
-      "Something went wrong"
-    );
-  } finally {
-    setLoading(false);
-  }
-};
+    setLoading(true);
+    setError("");
+
+    try {
+      console.log("Starting signup...");
+
+      const response = await clientSignup({
+        phone: "+91" + phone,
+        name,
+        password,
+      });
+
+      console.log("Signup Success:", response);
+
+      console.log("Redirecting to Login...");
+      router.replace("/login");
+    } catch (err: any) {
+      console.error("Signup error:", err);
+      console.error("Error response:", err?.response?.data);
+
+      setError(
+        err?.response?.data?.message ||
+        err?.message ||
+        "Something went wrong"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <main className="min-h-screen bg-[#F5F7FA]">
@@ -89,7 +74,7 @@ export default function SignupPage() {
             <ArrowLeft size={24} className="text-[#FF5404]" />
           </button>
 
-          <h1 onClick={() => router.push("/home")} className="ml-4 text-2xl font-bold text-[#FF5404]">
+          <h1 onClick={() => router.replace("/login")} className="ml-4 text-2xl font-bold text-[#FF5404]">
             Create Account
           </h1>
         </header>

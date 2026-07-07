@@ -13,7 +13,7 @@ const navItems = [
     inactiveIcon: "/HomeIcon2.svg",
   },
   {
-    label: "create-request",
+    label: "Create Request",
     href: "/create-request",
     activeIcon: "/Requests.svg",
     inactiveIcon: "/Requests2.svg",
