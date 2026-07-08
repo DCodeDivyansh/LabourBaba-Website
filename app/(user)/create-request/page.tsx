@@ -33,6 +33,16 @@ export default function NewRequestPage() {
     null,
   );
 
+  // Rate limits
+  const MASON_MIN = 700;
+  const MASON_MAX = 1000;
+  const LABOUR_MIN = 500;
+  const LABOUR_MAX = 700;
+
+  // Validation helper
+  const isMasonRateValid = !masonCount || !masonRate || (Number(masonRate) >= MASON_MIN && Number(masonRate) <= MASON_MAX);
+  const isLabourRateValid = !labourCount || !labourRate || (Number(labourRate) >= LABOUR_MIN && Number(labourRate) <= LABOUR_MAX);
+
   const findWorkers = async () => {
     // Validate inputs
     if (!savedLocation) {
@@ -41,6 +51,14 @@ export default function NewRequestPage() {
     }
     if (totalWorkers === 0) {
       setError("Please select at least one worker type");
+      return;
+    }
+    if (masonCount > 0 && !isMasonRateValid) {
+      setError(`Mason rate must be between ₹${MASON_MIN} - ₹${MASON_MAX}`);
+      return;
+    }
+    if (labourCount > 0 && !isLabourRateValid) {
+      setError(`Labour rate must be between ₹${LABOUR_MIN} - ₹${LABOUR_MAX}`);
       return;
     }
 
@@ -153,6 +171,8 @@ export default function NewRequestPage() {
           value={masonRate}
           onChange={setMasonRate}
           placeholder="e.g. 800"
+          minRate={MASON_MIN}
+          maxRate={MASON_MAX}
         />
         {/* Labour */}
         <WorkerCard
@@ -168,6 +188,8 @@ export default function NewRequestPage() {
           value={labourRate}
           onChange={setLabourRate}
           placeholder="e.g. 500"
+          minRate={LABOUR_MIN}
+          maxRate={LABOUR_MAX}
         />
         {/* Total */}
         <div className="text-right">
@@ -324,7 +346,7 @@ export default function NewRequestPage() {
               },
             }}
             onClick={findWorkers}
-            disabled={loading}
+            disabled={loading || !isMasonRateValid || !isLabourRateValid}
             className="
             relative
             w-full

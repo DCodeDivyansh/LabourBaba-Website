@@ -8,6 +8,8 @@ interface RateInputProps {
   value: string;
   onChange: (value: string) => void;
   placeholder: string;
+  minRate?: number;
+  maxRate?: number;
 }
 
 export default function RateInput({
@@ -16,7 +18,12 @@ export default function RateInput({
   value,
   onChange,
   placeholder,
+  minRate,
+  maxRate,
 }: RateInputProps) {
+  const numValue = Number(value);
+  const isValid = !value || (minRate !== undefined && maxRate !== undefined ? numValue >= minRate && numValue <= maxRate : true);
+  const isOutOfRange = value && minRate !== undefined && maxRate !== undefined && (numValue < minRate || numValue > maxRate);
   return (
     <motion.div
       initial={{ opacity: 0, y: 35 }}
@@ -48,23 +55,50 @@ export default function RateInput({
         value={value}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
-        className="
+        className={`
           h-16
           w-full
           rounded-2xl
           border
-          border-orange-200
           bg-gray-50
           px-5
           text-xl
           outline-none
           transition-all
-          focus:border-orange-500
           focus:bg-white
           focus:ring-4
-          focus:ring-orange-100
-        "
+          ${
+            isOutOfRange
+              ? "border-red-500 focus:border-red-500 focus:ring-red-100"
+              : "border-orange-200 focus:border-orange-500 focus:ring-orange-100"
+          }
+        `}
       />
+
+      {/* Validation Message */}
+      {minRate !== undefined && maxRate !== undefined && (
+        <div className="mt-3 flex items-center gap-2">
+          {isOutOfRange ? (
+            <motion.div
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex items-center gap-2 text-sm font-medium text-red-600"
+            >
+              <span className="inline-block h-2 w-2 rounded-full bg-red-600" />
+              Price must be between ₹{minRate} - ₹{maxRate}
+            </motion.div>
+          ) : value ? (
+            <motion.div
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex items-center gap-2 text-sm font-medium text-green-600"
+            >
+              <span className="inline-block h-2 w-2 rounded-full bg-green-600" />
+              Valid price
+            </motion.div>
+          ) : null}
+        </div>
+      )}
     </motion.div>
   );
 }
