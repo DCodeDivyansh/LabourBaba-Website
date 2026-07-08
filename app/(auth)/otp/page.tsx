@@ -60,7 +60,7 @@ export default function OtpPage() {
           {/* Logo */}
           <div className="mt-10 text-center">
             <Image
-              src="/logo.svg"
+              src="/Logo.svg"
               alt="LabourBaba"
               width={280}
               height={90}

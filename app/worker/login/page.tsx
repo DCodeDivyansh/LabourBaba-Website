@@ -40,7 +40,7 @@ export default function WorkerLoginPage() {
     <div className="min-h-screen flex items-center justify-center px-5">
       <div className="w-full max-w-md">
         <div className="text-center mb-10">
-          <Image src="/logo.svg" alt="LabourBaba" width={280} height={90} className="mx-auto w-48" />
+          <Image src="/Logo.svg" alt="LabourBaba" width={280} height={90} className="mx-auto w-48" />
         </div>
 
         <div className="relative bg-white p-7 rounded-3xl shadow-xl overflow-hidden">

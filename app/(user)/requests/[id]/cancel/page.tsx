@@ -36,7 +36,7 @@ export default function CancelJobPage() {
         {/* Logo */}
         <div className="flex justify-center mb-8">
           <img
-            src="/logo.png"
+            src="/Logo.svg"
             alt="LabourBaba"
             className="h-14 object-contain"
           />

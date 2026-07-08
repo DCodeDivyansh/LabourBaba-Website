@@ -72,7 +72,7 @@ export default function WorkerRegisterPage() {
 
         <div className="px-6 py-10 relative z-10">
           <div className="text-center mb-8">
-            <Image src="/logo.svg" alt="LabourBaba" width={280} height={90} className="mx-auto w-48" />
+            <Image src="/Logo.svg" alt="LabourBaba" width={280} height={90} className="mx-auto w-48" />
           </div>
 
           {error && (

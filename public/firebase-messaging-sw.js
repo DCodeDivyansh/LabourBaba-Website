@@ -38,8 +38,8 @@ if (messaging) {
     const notificationTitle = payload.notification?.title || "LabourBaba";
     const notificationOptions = {
       body: payload.notification?.body || "You have a new update",
-      icon: "/logo.png",
-      badge: "/logo.png",
+      icon: "/Logo.svg",
+      badge: "/Logo.svg",
       vibrate: [100, 50, 100],
       data: payload.data,
     };

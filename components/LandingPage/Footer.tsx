@@ -7,7 +7,7 @@ export default function Footer() {
         {/* Logo */}
         <div className="flex justify-center">
           <Image
-            src="/logo.svg"
+            src="/Logo.svg"
             alt="LabourBaba Logo"
             width={240}
             height={60}

@@ -35,7 +35,7 @@ export default function LogoSection() {
           }}
         >
           <Image
-            src="/logo.svg"
+            src="/Logo.svg"
             alt="LabourBaba Logo"
             width={300}
             height={90}

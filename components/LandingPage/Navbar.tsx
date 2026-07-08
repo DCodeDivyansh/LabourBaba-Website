@@ -34,7 +34,7 @@ export default function Navbar() {
           }}
         >
           <Image
-            src="/logo.svg"
+            src="/Logo.svg"
             alt="LabourBaba Logo"
             width={198}
             height={60}

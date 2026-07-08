@@ -84,7 +84,7 @@ export default function SignupPage() {
           {/* Logo */}
           <div className="text-center">
             <Image
-              src="/logo.svg"
+              src="/Logo.svg"
               alt="LabourBaba"
               width={280}
               height={90}

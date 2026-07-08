@@ -56,7 +56,7 @@ export default function TopNavbar() {
       `}
     >
       <div className="flex items-center justify-between px-4 py-3">
-        <Image src="/logo.svg" alt="LabourBaba" width={180} height={50} />
+        <Image src="/Logo.svg" alt="LabourBaba" width={180} height={50} />
 
         <div className="w-10 h-10 rounded-full bg-orange-50 border border-orange-100 flex items-center justify-center font-extrabold text-orange-500 text-sm select-none shadow-inner">
           {initials}
