@@ -21,7 +21,6 @@ export const getSocket = (): Socket | null => {
     console.log(`[socket.io] Connecting to: ${backendUrl}`);
 
     socket = io(backendUrl, {
-      path: "/socket.io/",
       transports: ["websocket", "polling"],
       reconnection: true,
       reconnectionAttempts: 5,
