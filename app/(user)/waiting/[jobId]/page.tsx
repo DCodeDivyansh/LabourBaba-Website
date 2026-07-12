@@ -38,9 +38,9 @@ function distanceKm(lat1: number, lon1: number, lat2: number, lon2: number): num
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
+    Math.cos((lat2 * Math.PI) / 180) *
+    Math.sin(dLon / 2) *
+    Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 }
@@ -187,6 +187,17 @@ export default function WaitingPage() {
     const handleWorkerAccepted = (payload: any) => {
       if (!payload || payload.jobId !== jobId) return;
       console.log("[socket.io] worker:accepted", payload);
+      // The plaintext OTP only ever exists for this one real-time event -
+      // the DB only stores a bcrypt hash of it. Stash it in sessionStorage
+      // keyed by bookingId so the booking detail page can show it after we
+      // navigate there (and so a refresh of that page doesn't lose it).
+      if (payload.otp && payload.bookingId && typeof window !== "undefined") {
+        try {
+          sessionStorage.setItem(`booking_otp:${payload.bookingId}`, payload.otp);
+        } catch (err) {
+          console.error("Failed to store booking OTP:", err);
+        }
+      }
       router.push(`/WorkerProfile/${payload.bookingId}`);
     };
 
@@ -256,7 +267,7 @@ export default function WaitingPage() {
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl flex items-start gap-2">
-            <AlertCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
+            <AlertCircle className="w-5 h-5 mt-0.5 shrink-0" />
             <span>{error}</span>
           </div>
         )}
@@ -324,15 +335,15 @@ export default function WaitingPage() {
               {acceptedWorkers.map((aw) => {
                 const distance =
                   job?.latitude != null &&
-                  job?.longitude != null &&
-                  aw.worker?.latitude != null &&
-                  aw.worker?.longitude != null
+                    job?.longitude != null &&
+                    aw.worker?.latitude != null &&
+                    aw.worker?.longitude != null
                     ? distanceKm(
-                        job.latitude,
-                        job.longitude,
-                        aw.worker.latitude,
-                        aw.worker.longitude
-                      ).toFixed(1)
+                      job.latitude,
+                      job.longitude,
+                      aw.worker.latitude,
+                      aw.worker.longitude
+                    ).toFixed(1)
                     : null;
 
                 return (
@@ -371,7 +382,7 @@ export default function WaitingPage() {
                         {aw.worker?.phone && (
                           <a
                             href={`tel:${aw.worker.phone}`}
-                            className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-orange-100 text-orange-500"
+                            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-orange-100 text-orange-500"
                           >
                             <Phone size={18} />
                           </a>
