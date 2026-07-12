@@ -76,7 +76,8 @@ export default function WorkerBookingsPage() {
               {bookings.map((booking) => (
                 <div
                   key={booking.id}
-                  className="bg-white rounded-2xl p-6 shadow-md"
+                  onClick={() => router.push(`/worker/bookings/${booking.id}`)}
+                  className="bg-white rounded-2xl p-6 shadow-md cursor-pointer hover:shadow-lg transition"
                 >
                   <div className="flex items-center justify-between mb-4">
                     <span className="font-semibold">Booking #{booking.id.slice(0, 8)}</span>
