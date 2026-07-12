@@ -33,8 +33,8 @@ function distanceKm(lat1: number, lon1: number, lat2: number, lon2: number): num
   const a =
     Math.sin(dLat / 2) ** 2 +
     Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) ** 2;
+    Math.cos((lat2 * Math.PI) / 180) *
+    Math.sin(dLon / 2) ** 2;
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
@@ -68,6 +68,22 @@ export default function WorkerProfileDetailPage() {
   const [booking, setBooking] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [startOtp, setStartOtp] = useState<string | null>(null);
+
+  // The real OTP only ever travels over the "worker:accepted" socket event
+  // (the DB only ever stores a bcrypt hash of it, which can't be reversed
+  // and must never be shown as-is). The waiting page stashes it here right
+  // when it arrives, keyed by bookingId, so it survives the redirect into
+  // this page and a refresh of this page.
+  useEffect(() => {
+    if (!bookingId || typeof window === "undefined") return;
+    try {
+      const stored = sessionStorage.getItem(`booking_otp:${bookingId}`);
+      if (stored) setStartOtp(stored);
+    } catch (err) {
+      console.error("Failed to read stored booking OTP:", err);
+    }
+  }, [bookingId]);
 
   useEffect(() => {
     if (!bookingId) return;
@@ -125,25 +141,24 @@ export default function WorkerProfileDetailPage() {
   // Calculate distance
   const distance =
     job?.latitude != null &&
-    job?.longitude != null &&
-    worker?.latitude != null &&
-    worker?.longitude != null
+      job?.longitude != null &&
+      worker?.latitude != null &&
+      worker?.longitude != null
       ? distanceKm(job.latitude, job.longitude, worker.latitude, worker.longitude).toFixed(1)
       : null;
 
   // Generate initials for avatar fallback
   const initials = worker?.name
     ? worker.name
-        .split(" ")
-        .slice(0, 2)
-        .map((w: string) => w[0]?.toUpperCase() || "")
-        .join("")
+      .split(" ")
+      .slice(0, 2)
+      .map((w: string) => w[0]?.toUpperCase() || "")
+      .join("")
     : "?";
 
   // Bio generation
-  const workerBio = `Professional worker specializing in ${
-    worker?.skill_type || req?.skill_type || "general services"
-  }. Fully verified, highly rated for quality work, and equipped to handle residential and commercial requests.`;
+  const workerBio = `Professional worker specializing in ${worker?.skill_type || req?.skill_type || "general services"
+    }. Fully verified, highly rated for quality work, and equipped to handle residential and commercial requests.`;
 
   // Top Review
   const topReview = booking.review && booking.review.length > 0 ? booking.review[0] : null;
@@ -259,14 +274,21 @@ export default function WorkerProfileDetailPage() {
           {booking.status !== "COMPLETED" && booking.status !== "CANCELLED" && (
             <section className="rounded-3xl bg-orange-50 border border-orange-200 p-5 shadow-sm text-center space-y-2">
               <h4 className="text-sm font-bold text-orange-800 tracking-wide uppercase">Start Job Verification</h4>
-              <p className="text-xs text-orange-600 leading-snug max-w-[280px] mx-auto">
+              <p className="text-xs text-orange-600 leading-snug max-w-70 mx-auto">
                 Share this OTP with the worker when they arrive to start the job.
               </p>
-              <div className="inline-block bg-white border-2 border-orange-300 rounded-2xl px-6 py-2.5 mt-2 shadow-inner">
-                <span className="text-2xl font-black text-orange-600 tracking-[0.2em] font-mono select-all">
-                  {booking.otp_hash ? booking.otp_hash.substring(0, 6).toUpperCase() : "1234"}
-                </span>
-              </div>
+              {startOtp ? (
+                <div className="inline-block bg-white border-2 border-orange-300 rounded-2xl px-6 py-2.5 mt-2 shadow-inner">
+                  <span className="text-2xl font-black text-orange-600 tracking-[0.2em] font-mono select-all">
+                    {startOtp}
+                  </span>
+                </div>
+              ) : (
+                <p className="text-xs text-orange-500 mt-2 max-w-70 mx-auto">
+                  OTP was shown when the worker first accepted this job. If you&apos;ve lost it, ask the
+                  worker to check with support, or cancel and re-request.
+                </p>
+              )}
             </section>
           )}
 
