@@ -20,11 +20,13 @@ export const getSocket = (): Socket | null => {
 
     console.log(`[socket.io] Connecting to: ${backendUrl}`);
 
-    socket = io(backendUrl, {
-      transports: ["websocket", "polling"],
+    socket = io(backendUrl!, {
+      transports: ["polling", "websocket"],
+      upgrade: true,
       reconnection: true,
-      reconnectionAttempts: 5,
+      reconnectionAttempts: Infinity,
       reconnectionDelay: 1000,
+      timeout: 10000,
     });
     console.log("Socket.IO instance created");
 
