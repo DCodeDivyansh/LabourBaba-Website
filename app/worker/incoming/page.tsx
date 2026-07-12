@@ -53,8 +53,13 @@ export default function WorkerIncomingPage() {
     if (!requirementId) return;
     setActionLoading("accept");
     try {
-      await acceptDispatch(requirementId);
-      router.push("/worker/bookings");
+      const data = await acceptDispatch(requirementId);
+      const newBookingId = data?.data?.booking?.id;
+      if (newBookingId) {
+        router.push(`/worker/bookings/${newBookingId}`);
+      } else {
+        router.push("/worker/bookings");
+      }
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
       setError(error.response?.data?.message || "Failed to accept job");
