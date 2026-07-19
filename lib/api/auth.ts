@@ -47,7 +47,7 @@ export async function clientLogin(data: LoginRequest): Promise<AuthResponse | un
     if (response.data.token) {
       await setAuthToken(response.data.token);
     }
-    if (response.data.data.id) {
+    if (response.data.data?.id) {
       await setCustomerId(response.data.data.id);
     }
     return response.data;
