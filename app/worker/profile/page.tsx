@@ -1,14 +1,16 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, User, Phone, Briefcase, Upload, Save, MapPin } from "lucide-react";
+import { ArrowLeft, User, Phone, Briefcase, Upload, Save, MapPin, LogOut } from "lucide-react";
 import { getMe, updateMe, getDocuments, uploadDocument, addWorkerLocation, type Worker, type WorkerDocument } from "@/lib/api/worker";
+import { logoutUser } from "@/lib/api/auth";
 
 export default function WorkerProfilePage() {
   const router = useRouter();
   const [worker, setWorker] = useState<Worker | null>(null);
   const [documents, setDocuments] = useState<WorkerDocument[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [editName, setEditName] = useState("");
   const [editPhone, setEditPhone] = useState("");
@@ -77,6 +79,16 @@ export default function WorkerProfilePage() {
       setError(error.response?.data?.message || "Failed to update location");
     } finally {
       setLocationLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    try {
+      await logoutUser();
+    } finally {
+      router.push("/worker/login");
+      router.refresh();
     }
   };
 
@@ -259,6 +271,16 @@ export default function WorkerProfilePage() {
               </button>
             </div>
           </section>
+
+          {/* Logout */}
+          <button
+            onClick={handleLogout}
+            disabled={loggingOut}
+            className="w-full h-12 rounded-full border-2 border-[#FF5404] bg-white text-[#FF5404] font-semibold text-lg flex items-center justify-center gap-3 shadow-sm hover:bg-orange-50 transition-all disabled:opacity-50"
+          >
+            <LogOut size={20} />
+            {loggingOut ? "Logging out..." : "Logout"}
+          </button>
         </div>
       </div>
     </main>

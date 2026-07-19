@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useState } from "react";
 
 import { motion } from "framer-motion";
 import {
@@ -17,7 +17,7 @@ import {
 
 import TopNavbar from "@/components/TopNavbar";
 import BottomNav from "@/components/BottomNav";
-import { logout } from "@/lib/api/auth";
+import { logoutUser } from "@/lib/api/auth";
 import { useAuthStore } from "@/stores/authStore";
 
 const menuItems = [
@@ -50,7 +50,20 @@ const menuItems = [
 export default function ProfilePage() {
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
-  
+  const resetAuthStore = useAuthStore((state) => state.resetAuthStore);
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    try {
+      await logoutUser();
+    } finally {
+      resetAuthStore();
+      router.push("/login");
+      router.refresh();
+    }
+  };
+
   // Get initials from name
   const getInitials = (name: string) => {
     if (!name) return "JD";
@@ -58,7 +71,7 @@ export default function ProfilePage() {
     if (names.length === 1) return names[0].substring(0, 2).toUpperCase();
     return (names[0][0] + names[names.length - 1][0]).toUpperCase();
   };
-  
+
   // Format phone number
   const formatPhone = (phone: string) => {
     if (!phone) return "+91 98765 43210";
@@ -67,7 +80,7 @@ export default function ProfilePage() {
     }
     return "+91 " + phone.replace(/(\d{5})(\d{5})/, "$1 $2");
   };
-  
+
   return (
     <main className="min-h-screen bg-[#F8F9FB] pb-24 relative overflow-hidden">
       {/* Background Glow */}
@@ -243,11 +256,13 @@ export default function ProfilePage() {
             shadow-sm
             hover:bg-orange-50
             transition-all
+            disabled:opacity-50
           "
-          onClick={() => {logout(); router.push("/login")}}
+          onClick={handleLogout}
+          disabled={loggingOut}
         >
           <LogOut size={20} />
-          Logout
+          {loggingOut ? "Logging out..." : "Logout"}
         </motion.button>
       </section>
 
