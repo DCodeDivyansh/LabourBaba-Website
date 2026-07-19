@@ -11,11 +11,21 @@ import type { User } from "@/types/types";
 async function loadCurrentUser(): Promise<User | null> {
   try {
     const customerId = await getCustomerId();
-    if (!customerId) return null;
+    if (!customerId) {
+      console.warn("[AuthHydrator] no customer_id cookie found - user will show as Guest");
+      return null;
+    }
 
     const response = await getCurrentClient();
+    console.log("[AuthHydrator] getCurrentClient() raw response:", JSON.stringify(response));
+
     const data = response?.data ?? response;
-    if (!data?.id) return null;
+    if (!data?.id) {
+      console.warn(
+        "[AuthHydrator] getCurrentClient() response had no usable id - check the shape logged above against what's expected: { id, name, phone } (optionally wrapped in { data: {...} })"
+      );
+      return null;
+    }
 
     return {
       id: data.id,
@@ -23,9 +33,11 @@ async function loadCurrentUser(): Promise<User | null> {
       phone: data.phone ?? "",
       customer_id: data.id,
     };
-  } catch {
-    // Backend hiccup or session hiccup - fail quietly. The page still
-    // renders; proxy.ts has already confirmed a session cookie exists.
+  } catch (err) {
+    console.error("[AuthHydrator] getCurrentClient() threw:", err);
+    // Backend hiccup or session hiccup - fail quietly on the page itself.
+    // proxy.ts has already confirmed a session cookie exists, so the page
+    // still renders - it just shows the Guest fallback for this request.
     return null;
   }
 }
