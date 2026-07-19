@@ -46,7 +46,7 @@ export default function SignupPage() {
       console.log("Signup Success:", response);
 
       console.log("Redirecting to Login...");
-      router.replace("/login");
+      router.replace("/login?registered=true");
     } catch (err: any) {
       console.error("Signup error:", err);
       console.error("Error response:", err?.response?.data);

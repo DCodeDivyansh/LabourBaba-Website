@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { motion } from "framer-motion";
 
 import LogoSection from "@/components/auth/LogoSection";
@@ -72,7 +73,9 @@ export default function LoginPage() {
               duration: 0.8,
             }}
           >
-            <LoginCard />
+            <Suspense fallback={null}>
+              <LoginCard />
+            </Suspense>
           </motion.div>
         </div>
       </div>

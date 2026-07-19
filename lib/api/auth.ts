@@ -98,8 +98,11 @@ export async function removeAuthToken() {
 
 export async function setCustomerId(customer_id: string) {
   const cookieStore = await cookies();
+  // Not httpOnly on purpose: the client needs to read this (e.g. to join its
+  // socket room). It's just an id, not a credential, so this is safe -
+  // the actual secret (auth_token) stays httpOnly above.
   cookieStore.set("customer_id", customer_id, {
-    httpOnly: true,
+    httpOnly: false,
     secure: process.env.NODE_ENV === "production",
     maxAge: 60 * 60 * 24 * 7,
     path: "/",

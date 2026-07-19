@@ -1,20 +1,25 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Globe,
   ChevronDown,
   ArrowRight,
   Lock,
+  CheckCircle2,
 } from "lucide-react";
 import { clientLogin } from "@/lib/api/auth";
 import { useAuthStore } from "@/stores/authStore";
 
 export default function LoginCard() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const setUser = useAuthStore((state) => state.setUser);
+
+  const justRegistered = searchParams.get("registered") === "true";
+  const redirectTo = searchParams.get("redirect") || "/home";
 
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
@@ -60,7 +65,8 @@ export default function LoginCard() {
         }
       }
       
-      router.push("/home");
+      router.push(redirectTo);
+      router.refresh();
     } catch (err: any) {
       setError(err.response?.data?.message || "Something went wrong");
     } finally {
@@ -130,6 +136,22 @@ export default function LoginCard() {
           Welcome Back
         </motion.h2>
 
+        <AnimatePresence>
+          {justRegistered && !error && (
+            <motion.div
+              initial={{ opacity: 0, y: -8, height: 0 }}
+              animate={{ opacity: 1, y: 0, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mb-6 flex items-center gap-2 rounded-xl border border-green-300 bg-green-50 px-4 py-3 text-green-700"
+            >
+              <CheckCircle2 size={20} className="shrink-0" />
+              <span className="text-sm font-medium">
+                Account created. Log in to get started.
+              </span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {error && (
           <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl">
             {error}
@@ -176,9 +198,11 @@ export default function LoginCard() {
             <input
               value={phone}
               onChange={handlePhoneChange}
+              onKeyDown={(e) => e.key === "Enter" && handleLogin()}
               type="tel"
               placeholder="9876543210"
-              className="flex-1 px-4 text-xl text-gray-700 outline-none"
+              disabled={loading}
+              className="flex-1 px-4 text-xl text-gray-700 outline-none disabled:opacity-60"
             />
 
           </div>
@@ -210,9 +234,11 @@ export default function LoginCard() {
             <input
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleLogin()}
               type="password"
               placeholder="Enter your password"
-              className="flex-1 px-4 text-xl text-gray-700 outline-none"
+              disabled={loading}
+              className="flex-1 px-4 text-xl text-gray-700 outline-none disabled:opacity-60"
             />
           </div>
         </motion.div>
