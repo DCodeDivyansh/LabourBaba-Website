@@ -1,35 +1,30 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-
+import {Home,NotepadText ,BellRing,UserRoundArrowLeft } from "lucide-react"
 const navItems = [
   {
     label: "Home",
     href: "/home",
-    activeIcon: "/HomeIcon.svg",
-    inactiveIcon: "/HomeIcon2.svg",
+    icon: Home,
   },
   {
     label: "Create Request",
     href: "/create-request",
-    activeIcon: "/Requests.svg",
-    inactiveIcon: "/Requests2.svg",
+    icon: NotepadText,
   },
   {
     label: "Alerts",
     href: "/alerts",
-    activeIcon: "/NotificationIcon.svg",
-    inactiveIcon: "/NotificationIcon2.svg",
+    icon: BellRing,
     hasNotification: true,
   },
   {
     label: "Profile",
     href: "/profile",
-    activeIcon: "/ProfileIcon.svg",
-    inactiveIcon: "/ProfileIcon2.svg",
+    icon: UserRoundArrowLeft,
   },
 ];
 
@@ -59,6 +54,7 @@ export default function BottomNav() {
       <div className="flex items-center justify-around">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
+          const Icon = item.icon;
 
           return (
             <Link
@@ -125,15 +121,9 @@ export default function BottomNav() {
                       duration: 0.4,
                     }}
                   >
-                    <Image
-                      src={
-                        isActive
-                          ? item.activeIcon
-                          : item.inactiveIcon
-                      }
-                      alt={item.label}
-                      width={20}
-                      height={20}
+                    <Icon
+                      size={20}
+                      color={isActive ? "#FFFFFF" : "#64748B"}
                     />
                   </motion.div>
                 </motion.div>

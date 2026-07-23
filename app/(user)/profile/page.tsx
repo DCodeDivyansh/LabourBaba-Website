@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 
 import { motion } from "framer-motion";
 import {
@@ -50,7 +49,7 @@ const menuItems = [
 export default function ProfilePage() {
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
-  
+
   // Get initials from name
   const getInitials = (name: string) => {
     if (!name) return "JD";
@@ -58,7 +57,7 @@ export default function ProfilePage() {
     if (names.length === 1) return names[0].substring(0, 2).toUpperCase();
     return (names[0][0] + names[names.length - 1][0]).toUpperCase();
   };
-  
+
   // Format phone number
   const formatPhone = (phone: string) => {
     if (!phone) return "+91 98765 43210";
@@ -67,7 +66,7 @@ export default function ProfilePage() {
     }
     return "+91 " + phone.replace(/(\d{5})(\d{5})/, "$1 $2");
   };
-  
+
   return (
     <main className="min-h-screen bg-[#F8F9FB] pb-24 relative overflow-hidden">
       {/* Background Glow */}
