@@ -77,6 +77,8 @@ export async function logoutUser() {
   await logout();
 }
 
+
+// below  all the funnction is for the does not call the api
 export async function setAuthToken(token: string) {
   const cookieStore = await cookies();
   cookieStore.set("auth_token", token, {
