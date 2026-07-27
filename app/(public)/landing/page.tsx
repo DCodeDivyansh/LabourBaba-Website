@@ -1,9 +1,9 @@
-import Navbar from "@/components/LandingPage/Navbar";
-import Hero from "@/components/LandingPage/Hero";
-import Features from "@/components/LandingPage/Features";
-import HowItWorks from "@/components/LandingPage/HowItWorks";
-import Footer from "@/components/LandingPage/Footer";
-import BottomCTA from "@/components/LandingPage/BottomCTA";
+import Navbar from "@/features/LandingPage/Navbar";
+import Hero from "@/features/LandingPage/Hero";
+import Features from "@/features/LandingPage/Features";
+import HowItWorks from "@/features/LandingPage/HowItWorks";
+import Footer from "@/features/LandingPage/Footer";
+import BottomCTA from "@/features/LandingPage/BottomCTA";
 // import { getDemo } from "../../../lib/api/demo";
 export default async function Home() {
   // await getDemo();

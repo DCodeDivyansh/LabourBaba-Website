@@ -42,14 +42,14 @@ export default function LoginCard() {
         phone: "+91" + phone,
         password,
       });
-      console.log("Login response:", response);
-      
+      // console.log("Login response:", response);
+
       // Store user data in auth store
       if (response?.data) {
         const customerId = (response.data?.id as string) || (response.customer_id as string) || "";
         const userName = (response.data?.name as string) || "";
         const userPhone = "+91" + phone;
-        
+
         if (customerId) {
           setUser({
             id: customerId,
@@ -59,7 +59,7 @@ export default function LoginCard() {
           });
         }
       }
-      
+
       router.push("/home");
     } catch (err: any) {
       setError(err.response?.data?.message || "Something went wrong");

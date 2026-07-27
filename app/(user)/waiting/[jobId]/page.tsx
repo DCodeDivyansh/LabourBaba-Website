@@ -256,7 +256,7 @@ export default function WaitingPage() {
       <div className="max-w-md mx-auto px-4 py-6 space-y-6">
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl flex items-start gap-2">
-            <AlertCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
+            <AlertCircle className="w-5 h-5 mt-0.5 shrink-0" />
             <span>{error}</span>
           </div>
         )}
@@ -371,7 +371,7 @@ export default function WaitingPage() {
                         {aw.worker?.phone && (
                           <a
                             href={`tel:${aw.worker.phone}`}
-                            className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-orange-100 text-orange-500"
+                            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-orange-100 text-orange-500"
                           >
                             <Phone size={18} />
                           </a>

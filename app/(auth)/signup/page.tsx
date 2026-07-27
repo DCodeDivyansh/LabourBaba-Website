@@ -43,7 +43,7 @@ export default function SignupPage() {
         password,
       });
 
-      console.log("Signup Success:", response);
+      // console.log("Signup Success:", response);
 
       console.log("Redirecting to Login...");
       router.replace("/login");

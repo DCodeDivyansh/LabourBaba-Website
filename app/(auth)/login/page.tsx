@@ -2,8 +2,8 @@
 
 import { motion } from "framer-motion";
 
-import LogoSection from "@/components/auth/LogoSection";
-import LoginCard from "@/components/auth/LoginCard";
+import LogoSection from "@/features/auth/LogoSection";
+import LoginCard from "@/features/auth/LoginCard";
 
 export default function LoginPage() {
   return (

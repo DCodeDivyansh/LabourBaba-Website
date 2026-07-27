@@ -37,7 +37,7 @@ async function createJob(data: CreateJobRequest): Promise<CreateJobResponse> {
       `/api/jobs`,
       data,
     );
-    console.log("Job created successfully:", res.data);
+    // console.log("Job created successfully:", res.data);
     return res.data;
   } catch (error) {
     console.error("Error creating job:", error);
@@ -49,7 +49,7 @@ async function addJobRequirement(
   jobId: string,
   data: AddRequirementRequest
 ) {
-  console.log("Adding requirement to job:", jobId, data);
+  // console.log("Adding requirement to job:", jobId, data);
   try {
     const res = await apiCall.post(
       `/api/jobs/${jobId}/requirements`,
@@ -106,7 +106,7 @@ async function getJobById(jobId: string): Promise<Job> {
   try {
     const res = await apiCall.get(`/api/jobs/${jobId}`,
     );
-    console.log("Fetched job:", res.data);
+    // console.log("Fetched job:", res.data);
     // The backend responds with { success, data: job }. Callers (e.g. the
     // waiting page) expect the Job object itself (job.location, etc.), so
     // unwrap it here instead of returning the envelope.
