@@ -1,6 +1,6 @@
 import { getCurrentClient } from "@/lib/api/client";
 import { getCustomerId } from "@/lib/api/auth";
-import AuthHydrator from "@/components/auth/AuthHydrator";
+import AuthHydrator from "@/features/auth/AuthHydrator";
 import type { User } from "@/types/types";
 
 // Fetches the logged-in customer's real profile on the server, where the

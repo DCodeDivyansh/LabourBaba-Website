@@ -22,7 +22,7 @@ export default function LoginCard() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const setUser = useAuthStore((state) => state.setUser);
-
+  const justRegistered = searchParams.get("registered") === "true";
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const {
