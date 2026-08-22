@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 import { User } from '@/types/types';
+// import { devtools } from 'zustand/middleware';
+import { persist } from 'zustand/middleware';
 
 interface AuthStore {
   user: User | null;
@@ -20,7 +22,7 @@ const initialState = {
   error: null,
 };
 
-export const useAuthStore = create<AuthStore>((set) => ({
+export const useAuthStore = create<AuthStore>()((persist((set) => ({
   ...initialState,
 
   setUser: (user) => set({ user }),
@@ -32,4 +34,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
   setError: (error) => set({ error }),
 
   resetAuthStore: () => set(initialState),
-}));
+}), {
+  name: "AuthStore",
+}
+)));

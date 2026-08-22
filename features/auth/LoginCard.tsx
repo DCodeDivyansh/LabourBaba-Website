@@ -12,49 +12,42 @@ import {
 } from "lucide-react";
 import { clientLogin } from "@/lib/api/auth";
 import { useAuthStore } from "@/stores/authStore";
+import { useForm, SubmitHandler } from "react-hook-form"
 
+type Inputs = {
+  phone: string;
+  password: string;
+}
 export default function LoginCard() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const setUser = useAuthStore((state) => state.setUser);
 
-  const justRegistered = searchParams.get("registered") === "true";
-  const redirectTo = searchParams.get("redirect") || "/home";
-
-  const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<Inputs>({ mode: "onChange" });
 
-  const handlePhoneChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const value = e.target.value.replace(/\D/g, "").slice(0, 10);
-    setPhone(value);
-  };
-
-  const handleLogin = async () => {
-    if (!phone || !password) {
-      setError("Please fill in all fields");
-      return;
-    }
-
+  const handleLogin: SubmitHandler<Inputs> = async (data) => {
     setLoading(true);
     setError("");
 
     try {
       const response = await clientLogin({
-        phone: "+91" + phone,
-        password,
+        phone: "+91" + data.phone,
+        password: data.password,
       });
-      console.log("Login response:", response);
-      
+      // console.log("Login response:", response);
+
       // Store user data in auth store
       if (response?.data) {
         const customerId = (response.data?.id as string) || (response.customer_id as string) || "";
         const userName = (response.data?.name as string) || "";
-        const userPhone = "+91" + phone;
-        
+        const userPhone = "+91" + data.phone;
+
         if (customerId) {
           setUser({
             id: customerId,
@@ -64,9 +57,8 @@ export default function LoginCard() {
           });
         }
       }
-      
-      router.push(redirectTo);
-      router.refresh();
+
+      router.push("/home");
     } catch (err: any) {
       setError(err.response?.data?.message || "Something went wrong");
     } finally {
@@ -74,8 +66,36 @@ export default function LoginCard() {
     }
   };
 
+  const phoneRegister = register("phone", {
+    required: "Phone number is required",
+    pattern: {
+      value: /^[6-9]\d{9}$/,
+      message: "Enter a valid 10-digit mobile number",
+    },
+    minLength: {
+      value: 10,
+      message: "Phone number must be 10 digits",
+    },
+    maxLength: {
+      value: 10,
+      message: "Phone number must be 10 digits",
+    },
+    setValueAs: (value: string) =>
+      value.replace(/\D/g, "").slice(0, 10),
+  });
+
+  const passwordRegister = register("password", {
+    required: "password is required",
+    minLength: {
+      value: 8,
+      message: "Password must be at least 8 characters",
+    },
+  });
+
+
   return (
-    <motion.div
+    <motion.form
+      onSubmit={handleSubmit(handleLogin)}
       initial={{
         opacity: 0,
         y: 40,
@@ -196,9 +216,7 @@ export default function LoginCard() {
             {/* Input */}
 
             <input
-              value={phone}
-              onChange={handlePhoneChange}
-              onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+              {...phoneRegister}
               type="tel"
               placeholder="9876543210"
               disabled={loading}
@@ -232,9 +250,7 @@ export default function LoginCard() {
               <Lock size={18} />
             </div>
             <input
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+              {...passwordRegister}
               type="password"
               placeholder="Enter your password"
               disabled={loading}
@@ -246,13 +262,13 @@ export default function LoginCard() {
         {/* Login Button */}
 
         <motion.button
+          type="submit"
           whileHover={{
             scale: 1.02,
           }}
           whileTap={{
             scale: 0.98,
           }}
-          onClick={handleLogin}
           disabled={loading}
           className="relative flex h-16 w-full items-center justify-center gap-2 overflow-hidden rounded-full bg-orange-500 text-2xl font-semibold text-white shadow-lg transition hover:bg-orange-600 disabled:opacity-50"
         >
@@ -330,14 +346,12 @@ export default function LoginCard() {
             className="flex items-center gap-3 rounded-full bg-gray-100 px-5 py-3 text-gray-700 transition hover:bg-gray-200"
           >
             <Globe size={18} />
-
             English
-
             <ChevronDown size={16} />
           </motion.button>
         </motion.div>
 
       </div>
-    </motion.div>
+    </motion.form>
   );
 }

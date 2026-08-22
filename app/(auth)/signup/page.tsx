@@ -13,44 +13,48 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { clientSignup } from "@/lib/api/auth";
-import { useAuthStore } from "@/stores/authStore";
+
+type SignupFormInputs = {
+  name: string;
+  phone: string;
+  password: string;
+  email?: string;
+  city?: string;
+  terms: boolean;
+};
 
 export default function SignupPage() {
   const router = useRouter();
-  const setUser = useAuthStore((state) => state.setUser);
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignupFormInputs>({
+    mode: "onChange",
+    defaultValues: {
+      email: "",
+      city: "",
+      terms: false,
+    },
+  });
 
-  const handleSignup = async () => {
-    if (!name || !phone || !password) {
-      setError("Please fill in all required fields");
-      return;
-    }
-
+  const handleSignup = async (data: SignupFormInputs) => {
     setLoading(true);
     setError("");
 
     try {
-      console.log("Starting signup...");
-
-      const response = await clientSignup({
-        phone: "+91" + phone,
-        name,
-        password,
+      await clientSignup({
+        phone: "+91" + data.phone,
+        name: data.name,
+        password: data.password,
       });
 
-      console.log("Signup Success:", response);
-
-      console.log("Redirecting to Login...");
-      router.replace("/login?registered=true");
+      router.replace("/login");
     } catch (err: any) {
-      console.error("Signup error:", err);
-      console.error("Error response:", err?.response?.data);
-
       setError(
         err?.response?.data?.message ||
         err?.message ||
@@ -98,52 +102,92 @@ export default function SignupPage() {
           </div>
 
           {/* Form */}
-          <div className="mt-10 space-y-5">
+          <form className="mt-10 space-y-5" onSubmit={handleSubmit(handleSignup)}>
             {error && (
               <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl">
                 {error}
               </div>
             )}
             {/* Full Name */}
-            <div className="border border-[#F2B8A0] rounded-xl h-14 flex items-center px-4 bg-white">
-              <User size={20} className="text-[#6B7280]" />
+            <div className="border border-[#F2B8A0] rounded-xl bg-white px-4">
+              <div className="flex h-14 items-center">
+                <User size={20} className="text-[#6B7280]" />
 
-              <input
-                type="text"
-                placeholder="Full Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="flex-1 ml-3 outline-none text-lg"
-              />
+                <input
+                  type="text"
+                  placeholder="Full Name"
+                  {...register("name", {
+                    required: "Full name is required",
+                    minLength: {
+                      value: 2,
+                      message: "Full name must be at least 2 characters",
+                    },
+                  })}
+                  className="flex-1 ml-3 outline-none text-lg"
+                />
+              </div>
+              {errors.name && (
+                <p className="pb-3 text-sm text-red-600">{errors.name.message}</p>
+              )}
             </div>
 
             {/* Mobile */}
-            <div className="border border-[#F2B8A0] rounded-xl h-14 overflow-hidden bg-white flex">
-              <div className="w-28 border-r flex items-center justify-center gap-2">
-                <span>🇮🇳</span>
-                <span className="font-medium">+91</span>
-              </div>
+            <div className="border border-[#F2B8A0] rounded-xl overflow-hidden bg-white">
+              <div className="flex h-14">
+                <div className="w-28 border-r flex items-center justify-center gap-2">
+                  <span>🇮🇳</span>
+                  <span className="font-medium">+91</span>
+                </div>
 
-              <input
-                type="tel"
-                placeholder="Mobile Number"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="flex-1 px-4 outline-none text-lg"
-              />
+                <input
+                  type="tel"
+                  placeholder="Mobile Number"
+                  {...register("phone", {
+                    required: "Mobile number is required",
+                    pattern: {
+                      value: /^[6-9]\d{9}$/,
+                      message: "Enter a valid 10-digit mobile number",
+                    },
+                    minLength: {
+                      value: 10,
+                      message: "Mobile number must be 10 digits",
+                    },
+                    maxLength: {
+                      value: 10,
+                      message: "Mobile number must be 10 digits",
+                    },
+                    setValueAs: (value: string) =>
+                      value.replace(/\D/g, "").slice(0, 10),
+                  })}
+                  className="flex-1 px-4 outline-none text-lg"
+                />
+              </div>
+              {errors.phone && (
+                <p className="px-4 pb-3 text-sm text-red-600">{errors.phone.message}</p>
+              )}
             </div>
 
             {/* Password */}
-            <div className="border border-[#F2B8A0] rounded-xl h-14 flex items-center px-4 bg-white">
-              <Lock size={20} className="text-[#6B7280]" />
+            <div className="border border-[#F2B8A0] rounded-xl bg-white px-4">
+              <div className="flex h-14 items-center">
+                <Lock size={20} className="text-[#6B7280]" />
 
-              <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="flex-1 ml-3 outline-none text-lg"
-              />
+                <input
+                  type="password"
+                  placeholder="Password"
+                  {...register("password", {
+                    required: "Password is required",
+                    minLength: {
+                      value: 8,
+                      message: "Password must be at least 8 characters",
+                    },
+                  })}
+                  className="flex-1 ml-3 outline-none text-lg"
+                />
+              </div>
+              {errors.password && (
+                <p className="pb-3 text-sm text-red-600">{errors.password.message}</p>
+              )}
             </div>
 
             {/* Email */}
@@ -153,6 +197,7 @@ export default function SignupPage() {
               <input
                 type="email"
                 placeholder="Email Address (Optional)"
+                {...register("email")}
                 className="flex-1 ml-3 outline-none text-lg"
               />
             </div>
@@ -161,7 +206,10 @@ export default function SignupPage() {
             <div className="border border-[#F2B8A0] rounded-xl h-14 flex items-center px-4 bg-white">
               <Building2 size={20} className="text-[#6B7280]" />
 
-              <select className="flex-1 ml-3 outline-none bg-transparent text-gray-600">
+              <select
+                {...register("city")}
+                className="flex-1 ml-3 outline-none bg-transparent text-gray-600"
+              >
                 <option>Select City</option>
                 <option>Lucknow</option>
                 <option>Kanpur</option>
@@ -176,6 +224,9 @@ export default function SignupPage() {
             <div className="flex items-start gap-3">
               <input
                 type="checkbox"
+                {...register("terms", {
+                  required: "You must agree to the terms to continue",
+                })}
                 className="mt-1 w-6 h-6 accent-orange-500"
               />
 
@@ -191,9 +242,13 @@ export default function SignupPage() {
                 .
               </p>
             </div>
+            {errors.terms && (
+              <p className="text-sm text-red-600">{errors.terms.message}</p>
+            )}
 
             {/* Button */}
             <button
+              type="submit"
               className="
               w-full
               h-14
@@ -211,7 +266,6 @@ export default function SignupPage() {
               transition
               disabled:opacity-50
             "
-              onClick={handleSignup}
               disabled={loading}
             >
               {loading ? "Signing up..." : "Create Account"}
@@ -225,7 +279,7 @@ export default function SignupPage() {
                 Login
               </Link>
             </p>
-          </div>
+          </form>
         </div>
       </div>
     </main>

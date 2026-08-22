@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 
 import { motion } from "framer-motion";
 import {
@@ -50,19 +49,6 @@ const menuItems = [
 export default function ProfilePage() {
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
-  const resetAuthStore = useAuthStore((state) => state.resetAuthStore);
-  const [loggingOut, setLoggingOut] = useState(false);
-
-  const handleLogout = async () => {
-    setLoggingOut(true);
-    try {
-      await logoutUser();
-    } finally {
-      resetAuthStore();
-      router.push("/login");
-      router.refresh();
-    }
-  };
 
   // Get initials from name
   const getInitials = (name: string) => {
