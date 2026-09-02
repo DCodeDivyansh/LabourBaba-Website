@@ -4,7 +4,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  ChevronDown,
   ArrowRight,
   Lock,
   Phone,
@@ -101,22 +100,11 @@ export default function LoginCard() {
       transition={{ duration: 0.35, ease: "easeOut" }}
       className="relative w-full overflow-hidden rounded-3xl bg-white p-4 shadow-xl ring-1 ring-black/5 sm:p-8"
     >
-      {/* Background glow — static, decorative */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute right-0 top-0 h-52 w-52 rounded-full bg-orange-200 opacity-40 blur-3xl"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute bottom-0 left-0 h-40 w-40 rounded-full bg-green-200 opacity-40 blur-3xl"
-      />
-
       <div className="relative z-10">
         <h2 className="mb-3 text-xl font-bold text-gray-800 sm:mb-7 sm:text-4xl">
           Welcome back
         </h2>
 
-        {/* Success / error banner — single slot, no layout jump between them */}
         <AnimatePresence mode="wait" initial={false}>
           {error ? (
             <motion.div
@@ -147,10 +135,7 @@ export default function LoginCard() {
         </AnimatePresence>
 
         <div className="mb-3 sm:mb-5">
-          <label
-            htmlFor="phone"
-            className="mb-1.5 block text-sm font-medium text-gray-600"
-          >
+          <label htmlFor="phone" className="mb-1.5 block text-sm font-medium text-gray-600">
             Mobile number
           </label>
 
@@ -190,10 +175,7 @@ export default function LoginCard() {
         </div>
 
         <div className="mb-4 sm:mb-7">
-          <label
-            htmlFor="password"
-            className="mb-1.5 block text-sm font-medium text-gray-600"
-          >
+          <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-gray-600">
             Password
           </label>
 

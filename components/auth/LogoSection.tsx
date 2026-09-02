@@ -1,19 +1,29 @@
 "use client";
 
 import Image from "next/image";
+import { useState } from "react";
 
 export default function LogoSection() {
+  const [imgError, setImgError] = useState(false);
+
   return (
     <div className="mb-5 text-center sm:mb-8">
       <div className="flex justify-center">
-        <Image
-          src="/Logo.svg"
-          alt="LabourBaba Logo"
-          width={260}
-          height={78}
-          priority
-          className="h-auto w-[190px] select-none sm:w-[260px]"
-        />
+        {imgError ? (
+          <span className="text-2xl font-bold text-[#FF5404] sm:text-3xl">
+            LabourBaba
+          </span>
+        ) : (
+          <Image
+            src="/Logo.svg"
+            alt="LabourBaba Logo"
+            width={260}
+            height={78}
+            priority
+            onError={() => setImgError(true)}
+            className="h-auto w-[190px] select-none sm:w-[260px]"
+          />
+        )}
       </div>
 
       <p className="mt-1 text-sm tracking-wide text-[#6a5447] sm:mt-3 sm:text-lg">
