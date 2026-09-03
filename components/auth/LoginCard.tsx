@@ -20,6 +20,9 @@ export default function LoginCard() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const setUser = useAuthStore((state) => state.setUser);
+  const setIsAuthenticated = useAuthStore(
+    (state) => state.setIsAuthenticated
+  );
 
   const justRegistered = searchParams.get("registered") === "true";
   const redirectTo = searchParams.get("redirect") || "/home";
@@ -49,12 +52,16 @@ export default function LoginCard() {
   };
 
   const handleLogin = async () => {
-    setTouched({ phone: true, password: true });
+    setTouched({
+      phone: true,
+      password: true,
+    });
 
     if (!phoneValid) {
       setError("Enter a valid 10-digit mobile number");
       return;
     }
+
     if (!password) {
       setError("Enter your password");
       return;
@@ -69,26 +76,27 @@ export default function LoginCard() {
         password,
       });
 
-      if (response?.data) {
-        const customerId =
-          (response.data?.id as string) || (response.customer_id as string) || "";
-        const userName = (response.data?.name as string) || "";
-        const userPhone = "+91" + phone;
+      if (response.data?.id) {
+        const customerId = response.data.id;
 
-        if (customerId) {
-          setUser({
-            id: customerId,
-            name: userName || "User",
-            phone: userPhone,
-            customer_id: customerId,
-          });
-        }
+        setUser({
+          id: customerId,
+          name: response.data.name || "User",
+          phone: response.data.phone || "+91" + phone,
+          customer_id: customerId,
+        });
+
+        setIsAuthenticated(true);
       }
 
-      router.push(redirectTo);
+      router.replace(redirectTo);
       router.refresh();
     } catch (err: any) {
-      setError(err.response?.data?.message || "Something went wrong. Please try again.");
+      setError(
+        err?.response?.data?.message ||
+        "Something went wrong. Please try again."
+      );
+
       setLoading(false);
     }
   };
@@ -140,11 +148,10 @@ export default function LoginCard() {
           </label>
 
           <div
-            className={`flex h-12 items-center overflow-hidden rounded-xl border-2 bg-white transition-colors duration-150 sm:h-14 ${
-              showPhoneError
-                ? "border-red-400"
-                : "border-gray-200 focus-within:border-orange-500"
-            }`}
+            className={`flex h-12 items-center overflow-hidden rounded-xl border-2 bg-white transition-colors duration-150 sm:h-14 ${showPhoneError
+              ? "border-red-400"
+              : "border-gray-200 focus-within:border-orange-500"
+              }`}
           >
             <div className="flex h-full w-14 shrink-0 items-center justify-center gap-1 border-r border-gray-200 bg-gray-50 text-gray-600 sm:w-16">
               <Phone size={14} />

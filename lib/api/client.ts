@@ -1,6 +1,6 @@
 "use server";
+
 import { apiCall } from "./api";
-import { getCustomerId } from "./auth";
 
 export interface Customer {
   id: string;
@@ -25,10 +25,38 @@ export async function addClient(data: CreateCustomerRequest) {
   return response.data;
 }
 
-export async function getCurrentClient() {
-  const customerId = await getCustomerId();
-  if (!customerId) return null;
-  
-  const response = await apiCall.get(`/api/clients/${customerId}`);
-  return response.data;
+/**
+ * Get the currently authenticated customer.
+ *
+ * IMPORTANT:
+ * We do not send customer_id here.
+ *
+ * The backend identifies the customer from the JWT
+ * stored in the httpOnly auth_token cookie.
+ */
+export async function getCurrentClient(): Promise<Customer | null> {
+  try {
+    const response = await apiCall.get("/api/clients/me");
+
+    const data = response.data?.data ?? response.data;
+
+    if (!data?.id) {
+      return null;
+    }
+
+    return {
+      id: data.id,
+      name: data.name ?? "",
+      phone: data.phone ?? "",
+      created_at: data.created_at,
+      deleted_at: data.deleted_at,
+    };
+  } catch (error: any) {
+    console.error(
+      "[getCurrentClient] Failed:",
+      error?.response?.data || error?.message || error
+    );
+
+    return null;
+  }
 }
