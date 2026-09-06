@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowRight,
@@ -12,6 +12,8 @@ import {
   Eye,
   EyeOff,
   Loader2,
+  Globe,
+  ChevronDown,
 } from "lucide-react";
 import { clientLogin } from "@/lib/api/auth";
 import { useAuthStore } from "@/stores/authStore";
@@ -28,6 +30,7 @@ export default function LoginCard() {
   const justRegistered = searchParams.get("registered") === "true";
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const {
     register,
     handleSubmit,
@@ -98,6 +101,8 @@ export default function LoginCard() {
     },
   });
 
+  const showPhoneError = Boolean(errors.phone);
+
 
   return (
     <motion.form
@@ -167,10 +172,7 @@ export default function LoginCard() {
 
             <input
               id="phone"
-              value={phone}
-              onChange={handlePhoneChange}
-              onBlur={() => setTouched((t) => ({ ...t, phone: true }))}
-              onKeyDown={handlePhoneKeyDown}
+              {...phoneRegister}
               type="tel"
               inputMode="numeric"
               autoComplete="tel-national"
@@ -199,14 +201,14 @@ export default function LoginCard() {
             </div>
             <input
               {...passwordRegister}
-              type="password"
+              type={showPassword ? "text" : "password"}
               placeholder="Enter your password"
               disabled={loading}
               className="h-full flex-1 bg-transparent px-4 text-base text-gray-800 outline-none placeholder:text-gray-300 disabled:opacity-60 sm:text-lg"
             />
             <button
               type="button"
-              onClick={() => setShowPassword((v) => !v)}
+              onClick={() => setShowPassword((value) => !value)}
               tabIndex={-1}
               aria-label={showPassword ? "Hide password" : "Show password"}
               className="flex h-full w-11 shrink-0 items-center justify-center text-gray-400 transition-colors hover:text-gray-600 sm:w-12"
@@ -240,7 +242,7 @@ export default function LoginCard() {
           )}
         </motion.button>
 
-        <div className="mt-4 text-center sm:mt-6">
+        <motion.div className="mt-4 text-center sm:mt-6">
           <button
             onClick={() => router.push("/signup")}
             className="text-sm font-medium text-[#006d8f] transition-colors hover:text-orange-600 sm:text-base"

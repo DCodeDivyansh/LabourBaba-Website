@@ -23,8 +23,10 @@ const initialState = {
   error: null,
 };
 
-export const useAuthStore = create<AuthStore>()((persist((set) => ({
-  ...initialState,
+export const useAuthStore = create<AuthStore>()(
+  persist(
+    (set) => ({
+      ...initialState,
 
   setUser: (user) =>
     set({
@@ -46,9 +48,14 @@ export const useAuthStore = create<AuthStore>()((persist((set) => ({
       error,
     }),
 
-  resetAuthStore: () =>
-    set({
-      ...initialState,
-      isLoading: false,
+      resetAuthStore: () =>
+        set({
+          ...initialState,
+          isLoading: false,
+        }),
     }),
-}));
+    {
+      name: 'auth-storage',
+    }
+  )
+);

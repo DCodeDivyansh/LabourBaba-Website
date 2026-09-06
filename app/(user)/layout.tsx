@@ -19,19 +19,18 @@ async function loadCurrentUser(): Promise<User | null> {
     const response = await getCurrentClient();
     console.log("[AuthHydrator] getCurrentClient() raw response:", JSON.stringify(response));
 
-    const data = response?.data ?? response;
-    if (!data?.id) {
+    if (!response?.id) {
       console.warn(
-        "[AuthHydrator] getCurrentClient() response had no usable id - check the shape logged above against what's expected: { id, name, phone } (optionally wrapped in { data: {...} })"
+        "[AuthHydrator] getCurrentClient() response had no usable id - check the shape logged above against what's expected: { id, name, phone }"
       );
       return null;
     }
 
     return {
-      id: data.id,
-      name: data.name ?? "",
-      phone: data.phone ?? "",
-      customer_id: data.id,
+      id: response.id,
+      name: response.name ?? "",
+      phone: response.phone ?? "",
+      customer_id: response.id,
     };
   } catch (error) {
     console.error(
