@@ -8,6 +8,7 @@ interface AuthStore {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+
   setUser: (user: User | null) => void;
   setIsAuthenticated: (authenticated: boolean) => void;
   setLoading: (loading: boolean) => void;
@@ -18,23 +19,36 @@ interface AuthStore {
 const initialState = {
   user: null,
   isAuthenticated: false,
-  isLoading: false,
+  isLoading: true,
   error: null,
 };
 
 export const useAuthStore = create<AuthStore>()((persist((set) => ({
   ...initialState,
 
-  setUser: (user) => set({ user }),
+  setUser: (user) =>
+    set({
+      user,
+    }),
 
-  setIsAuthenticated: (authenticated) => set({ isAuthenticated: authenticated }),
+  setIsAuthenticated: (authenticated) =>
+    set({
+      isAuthenticated: authenticated,
+    }),
 
-  setLoading: (loading) => set({ isLoading: loading }),
+  setLoading: (loading) =>
+    set({
+      isLoading: loading,
+    }),
 
-  setError: (error) => set({ error }),
+  setError: (error) =>
+    set({
+      error,
+    }),
 
-  resetAuthStore: () => set(initialState),
-}), {
-  name: "AuthStore",
-}
-)));
+  resetAuthStore: () =>
+    set({
+      ...initialState,
+      isLoading: false,
+    }),
+}));

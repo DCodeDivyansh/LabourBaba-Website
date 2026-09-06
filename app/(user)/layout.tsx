@@ -33,11 +33,12 @@ async function loadCurrentUser(): Promise<User | null> {
       phone: data.phone ?? "",
       customer_id: data.id,
     };
-  } catch (err) {
-    console.error("[AuthHydrator] getCurrentClient() threw:", err);
-    // Backend hiccup or session hiccup - fail quietly on the page itself.
-    // proxy.ts has already confirmed a session cookie exists, so the page
-    // still renders - it just shows the Guest fallback for this request.
+  } catch (error) {
+    console.error(
+      "[UserLayout] Failed to load current user:",
+      error
+    );
+
     return null;
   }
 }

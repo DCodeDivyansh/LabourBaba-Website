@@ -6,29 +6,48 @@ import { getClientCustomerId } from "@/lib/client-cookies";
 import { joinCustomerRoom } from "@/services/socket";
 import type { User } from "@/types/types";
 
-/**
- * Fills in the client-side auth store with the real, server-fetched user on
- * first load of any protected page - so a refresh, a new tab, or a direct
- * visit to a saved cookie all show the real name/phone instead of the
- * "Guest" / placeholder fallback. (Previously the store was only ever
- * populated inside the login form's own submit handler, which meant it was
- * empty on every page load other than the one right after typing a
- * password.)
- */
-export default function AuthHydrator({ user }: { user: User | null }) {
+interface AuthHydratorProps {
+  user: User | null;
+}
+
+export default function AuthHydrator({
+  user,
+}: AuthHydratorProps) {
   const setUser = useAuthStore((state) => state.setUser);
+  const setIsAuthenticated = useAuthStore(
+    (state) => state.setIsAuthenticated
+  );
+  const setLoading = useAuthStore(
+    (state) => state.setLoading
+  );
 
   useEffect(() => {
     if (user) {
       setUser(user);
+      setIsAuthenticated(true);
+
+      /*
+       * customer_id is currently only used by Socket.IO.
+       *
+       * It is NOT used for authentication.
+       */
+      const customerId = getClientCustomerId();
+
+      if (customerId) {
+        joinCustomerRoom(customerId);
+      }
+    } else {
+      setUser(null);
+      setIsAuthenticated(false);
     }
 
-    const customerId = getClientCustomerId();
-    if (customerId) {
-      joinCustomerRoom(customerId);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id]);
+    setLoading(false);
+  }, [
+    user,
+    setUser,
+    setIsAuthenticated,
+    setLoading,
+  ]);
 
   return null;
 }
