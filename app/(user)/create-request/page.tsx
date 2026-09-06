@@ -8,8 +8,8 @@ import {
   type SavedLocationData,
 } from "@/lib/location-storage";
 import TopBar from "@/components/CommonHeader";
-import WorkerCard from "@/components/CreateRequest/WorkerCard";
-import RateInput from "@/components/CreateRequest/RateInput";
+import WorkerCard from "@/features/CreateRequest/WorkerCard";
+import RateInput from "@/features/CreateRequest/RateInput";
 import { createJob } from "@/services/job";
 import { getSocket, joinCustomerRoom } from "@/services/socket";
 import { getClientCustomerId } from "@/lib/client-cookies";
@@ -96,7 +96,7 @@ export default function NewRequestPage() {
         console.log("[socket.io] Initializing socket connection...");
         const customerId = jobData.data.customer_id || getClientCustomerId();
         console.log(customerId)
-        
+
         if (customerId) {
           // Wait for socket connection if not already connected
           if (!socket.connected) {

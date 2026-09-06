@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 
 import { motion } from "framer-motion";
 import {
@@ -19,6 +18,7 @@ import TopNavbar from "@/components/TopNavbar";
 import BottomNav from "@/components/BottomNav";
 import { logoutUser } from "@/lib/api/auth";
 import { useAuthStore } from "@/stores/authStore";
+import { useState } from "react";
 
 const menuItems = [
   {

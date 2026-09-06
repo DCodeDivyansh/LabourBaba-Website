@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { Job } from '@/lib/types';
 
 interface JobStore {
@@ -26,32 +27,39 @@ const initialState = {
   error: null,
 };
 
-export const useJobStore = create<JobStore>((set, get) => ({
-  ...initialState,
+export const useJobStore = create<JobStore>()(
+  persist(
+    (set, get) => ({
+      ...initialState,
 
-  setActiveJob: (id) => set({ activeJobId: id }),
+      setActiveJob: (id) => set({ activeJobId: id }),
 
-  setJobs: (jobs) => set({ jobs }),
+      setJobs: (jobs) => set({ jobs }),
 
-  addJob: (job) => set((state) => ({ jobs: [...state.jobs, job] })),
+      addJob: (job) => set((state) => ({ jobs: [...state.jobs, job] })),
 
-  updateJob: (jobId, updates) => set((state) => ({
-    jobs: state.jobs.map((job) =>
-      job.id === jobId ? { ...job, ...updates } : job
-    ),
-  })),
+      updateJob: (jobId, updates) => set((state) => ({
+        jobs: state.jobs.map((job) =>
+          job.id === jobId ? { ...job, ...updates } : job
+        ),
+      })),
 
-  removeJob: (jobId) => set((state) => ({
-    jobs: state.jobs.filter((job) => job.id !== jobId),
-  })),
+      removeJob: (jobId) => set((state) => ({
+        jobs: state.jobs.filter((job) => job.id !== jobId),
+      })),
 
-  updateDispatch: (jobId, status) => set((state) => ({
-    dispatchStatus: { ...state.dispatchStatus, [jobId]: status },
-  })),
+      updateDispatch: (jobId, status) => set((state) => ({
+        dispatchStatus: { ...state.dispatchStatus, [jobId]: status },
+      })),
 
-  setLoading: (loading) => set({ isLoading: loading }),
+      setLoading: (loading) => set({ isLoading: loading }),
 
-  setError: (error) => set({ error }),
+      setError: (error) => set({ error }),
 
-  resetJobStore: () => set(initialState),
-}));
+      resetJobStore: () => set(initialState),
+    }),
+    {
+      name: 'job-storage', // key in localStorage
+    }
+  )
+);

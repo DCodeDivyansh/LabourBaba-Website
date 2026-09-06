@@ -151,15 +151,9 @@ export async function logoutUser() {
   await logout();
 }
 
-/**
- * Save JWT.
- *
- * The JWT is httpOnly, so client-side JavaScript
- * cannot directly access it.
- */
-export async function setAuthToken(
-  token: string
-) {
+
+// below  all the funnction is for the does not call the api
+export async function setAuthToken(token: string) {
   const cookieStore = await cookies();
 
   cookieStore.set("auth_token", token, {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowRight,
@@ -12,85 +12,59 @@ import {
   Eye,
   EyeOff,
   Loader2,
+  Globe,
+  ChevronDown,
 } from "lucide-react";
 import { clientLogin } from "@/lib/api/auth";
 import { useAuthStore } from "@/stores/authStore";
+import { useForm, SubmitHandler } from "react-hook-form"
 
+type Inputs = {
+  phone: string;
+  password: string;
+}
 export default function LoginCard() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const setUser = useAuthStore((state) => state.setUser);
-  const setIsAuthenticated = useAuthStore(
-    (state) => state.setIsAuthenticated
-  );
-
   const justRegistered = searchParams.get("registered") === "true";
-  const redirectTo = searchParams.get("redirect") || "/home";
-
-  const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [touched, setTouched] = useState<{ phone?: boolean; password?: boolean }>({});
+  const [showPassword, setShowPassword] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<Inputs>({ mode: "onChange" });
 
-  const passwordRef = useRef<HTMLInputElement>(null);
-
-  const phoneValid = phone.length === 10;
-  const showPhoneError = touched.phone && !phoneValid;
-
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, "").slice(0, 10);
-    setPhone(value);
-    if (error) setError("");
-  };
-
-  const handlePhoneKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && phoneValid) {
-      passwordRef.current?.focus();
-    }
-  };
-
-  const handleLogin = async () => {
-    setTouched({
-      phone: true,
-      password: true,
-    });
-
-    if (!phoneValid) {
-      setError("Enter a valid 10-digit mobile number");
-      return;
-    }
-
-    if (!password) {
-      setError("Enter your password");
-      return;
-    }
-
+  const handleLogin: SubmitHandler<Inputs> = async (data) => {
     setLoading(true);
     setError("");
 
     try {
       const response = await clientLogin({
-        phone: "+91" + phone,
-        password,
+        phone: "+91" + data.phone,
+        password: data.password,
       });
+      // console.log("Login response:", response);
 
-      if (response.data?.id) {
-        const customerId = response.data.id;
+      // Store user data in auth store
+      if (response?.data) {
+        const customerId = (response.data?.id as string) || (response.customer_id as string) || "";
+        const userName = (response.data?.name as string) || "";
+        const userPhone = "+91" + data.phone;
 
-        setUser({
-          id: customerId,
-          name: response.data.name || "User",
-          phone: response.data.phone || "+91" + phone,
-          customer_id: customerId,
-        });
-
-        setIsAuthenticated(true);
+        if (customerId) {
+          setUser({
+            id: customerId,
+            name: userName || "User",
+            phone: userPhone,
+            customer_id: customerId,
+          });
+        }
       }
 
-      router.replace(redirectTo);
-      router.refresh();
+      router.push("/home");
     } catch (err: any) {
       setError(
         err?.response?.data?.message ||
@@ -101,12 +75,50 @@ export default function LoginCard() {
     }
   };
 
+  const phoneRegister = register("phone", {
+    required: "Phone number is required",
+    pattern: {
+      value: /^[6-9]\d{9}$/,
+      message: "Enter a valid 10-digit mobile number",
+    },
+    minLength: {
+      value: 10,
+      message: "Phone number must be 10 digits",
+    },
+    maxLength: {
+      value: 10,
+      message: "Phone number must be 10 digits",
+    },
+    setValueAs: (value: string) =>
+      value.replace(/\D/g, "").slice(0, 10),
+  });
+
+  const passwordRegister = register("password", {
+    required: "password is required",
+    minLength: {
+      value: 8,
+      message: "Password must be at least 8 characters",
+    },
+  });
+
+  const showPhoneError = Boolean(errors.phone);
+
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: "easeOut" }}
-      className="relative w-full overflow-hidden rounded-3xl bg-white p-4 shadow-xl ring-1 ring-black/5 sm:p-8"
+    <motion.form
+      onSubmit={handleSubmit(handleLogin)}
+      initial={{
+        opacity: 0,
+        y: 40,
+      }}
+      animate={{
+        opacity: 1,
+        y: 0,
+      }}
+      transition={{
+        duration: 0.7,
+      }}
+      className="relative w-full overflow-hidden rounded-3xl bg-white p-7 shadow-xl"
     >
       <div className="relative z-10">
         <h2 className="mb-3 text-xl font-bold text-gray-800 sm:mb-7 sm:text-4xl">
@@ -160,10 +172,7 @@ export default function LoginCard() {
 
             <input
               id="phone"
-              value={phone}
-              onChange={handlePhoneChange}
-              onBlur={() => setTouched((t) => ({ ...t, phone: true }))}
-              onKeyDown={handlePhoneKeyDown}
+              {...phoneRegister}
               type="tel"
               inputMode="numeric"
               autoComplete="tel-national"
@@ -191,24 +200,15 @@ export default function LoginCard() {
               <Lock size={16} />
             </div>
             <input
-              id="password"
-              ref={passwordRef}
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-                if (error) setError("");
-              }}
-              onBlur={() => setTouched((t) => ({ ...t, password: true }))}
-              onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+              {...passwordRegister}
               type={showPassword ? "text" : "password"}
-              autoComplete="current-password"
               placeholder="Enter your password"
               disabled={loading}
               className="h-full flex-1 bg-transparent px-4 text-base text-gray-800 outline-none placeholder:text-gray-300 disabled:opacity-60 sm:text-lg"
             />
             <button
               type="button"
-              onClick={() => setShowPassword((v) => !v)}
+              onClick={() => setShowPassword((value) => !value)}
               tabIndex={-1}
               aria-label={showPassword ? "Hide password" : "Show password"}
               className="flex h-full w-11 shrink-0 items-center justify-center text-gray-400 transition-colors hover:text-gray-600 sm:w-12"
@@ -219,8 +219,13 @@ export default function LoginCard() {
         </div>
 
         <motion.button
-          whileTap={{ scale: 0.98 }}
-          onClick={handleLogin}
+          type="submit"
+          whileHover={{
+            scale: 1.02,
+          }}
+          whileTap={{
+            scale: 0.98,
+          }}
           disabled={loading}
           className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-orange-500 text-lg font-semibold text-white shadow-md shadow-orange-500/20 transition-colors duration-150 hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60 sm:h-14 sm:text-xl"
         >
@@ -237,15 +242,45 @@ export default function LoginCard() {
           )}
         </motion.button>
 
-        <div className="mt-4 text-center sm:mt-6">
+        <motion.div className="mt-4 text-center sm:mt-6">
           <button
             onClick={() => router.push("/signup")}
             className="text-sm font-medium text-[#006d8f] transition-colors hover:text-orange-600 sm:text-base"
           >
             New here? <span className="underline underline-offset-2">Create account</span>
           </button>
-        </div>
+        </motion.div>
+
+        {/* Language */}
+
+        <motion.div
+          initial={{
+            opacity: 0,
+          }}
+          animate={{
+            opacity: 1,
+          }}
+          transition={{
+            delay: 0.6,
+          }}
+          className="mt-8 flex justify-center"
+        >
+          <motion.button
+            whileHover={{
+              scale: 1.05,
+            }}
+            whileTap={{
+              scale: 0.95,
+            }}
+            className="flex items-center gap-3 rounded-full bg-gray-100 px-5 py-3 text-gray-700 transition hover:bg-gray-200"
+          >
+            <Globe size={18} />
+            English
+            <ChevronDown size={16} />
+          </motion.button>
+        </motion.div>
+
       </div>
-    </motion.div>
+    </motion.form>
   );
 }

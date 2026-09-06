@@ -17,7 +17,7 @@ import {
 
 import TopNavbar from "@/components/TopNavbar";
 import BottomNav from "@/components/BottomNav";
-import GreetingSection from "@/components/HomePage/GreetingSection";
+import GreetingSection from "@/features/HomePage/GreetingSection";
 import { useFCM } from "@/lib/hooks/useFCM";
 import { useAuthStore } from "@/stores/authStore";
 import { getSavedLocation } from "@/lib/location-storage";

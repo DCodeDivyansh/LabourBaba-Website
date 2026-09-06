@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.BACKEND_URL || "http://127.0.0.1:5000";
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.BACKEND_URL ;
 
 async function proxyRequest(req: NextRequest) {
   const targetUrl = new URL(`${req.nextUrl.pathname}${req.nextUrl.search}`, BACKEND_URL);

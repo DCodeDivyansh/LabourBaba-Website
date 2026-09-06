@@ -1,26 +1,36 @@
 import { getCurrentClient } from "@/lib/api/client";
-import AuthHydrator from "@/components/auth/AuthHydrator";
+import { getCustomerId } from "@/lib/api/auth";
+import AuthHydrator from "@/features/auth/AuthHydrator";
 import type { User } from "@/types/types";
 
-/**
- * Load the currently authenticated customer from the backend.
- *
- * The backend gets the customer ID from the verified JWT.
- * We do not depend on the customer_id cookie anymore.
- */
+// Fetches the logged-in customer's real profile on the server, where the
+// httpOnly auth cookie is actually readable, and hands it down to a client
+// component that hydrates the (in-memory, client-only) auth store with it.
+// Without this, any page load that isn't the split-second after submitting
+// the login form shows placeholder/default data instead of the real user.
 async function loadCurrentUser(): Promise<User | null> {
   try {
-    const customer = await getCurrentClient();
+    const customerId = await getCustomerId();
+    if (!customerId) {
+      console.warn("[AuthHydrator] no customer_id cookie found - user will show as Guest");
+      return null;
+    }
 
-    if (!customer?.id) {
+    const response = await getCurrentClient();
+    console.log("[AuthHydrator] getCurrentClient() raw response:", JSON.stringify(response));
+
+    if (!response?.id) {
+      console.warn(
+        "[AuthHydrator] getCurrentClient() response had no usable id - check the shape logged above against what's expected: { id, name, phone }"
+      );
       return null;
     }
 
     return {
-      id: customer.id,
-      name: customer.name ?? "",
-      phone: customer.phone ?? "",
-      customer_id: customer.id,
+      id: response.id,
+      name: response.name ?? "",
+      phone: response.phone ?? "",
+      customer_id: response.id,
     };
   } catch (error) {
     console.error(
