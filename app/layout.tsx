@@ -1,3 +1,4 @@
+'use client";'
 import type { Metadata } from "next";
 import "./globals.css";
 import FCMProvider from "@/components/FCMProvider";
@@ -30,28 +31,27 @@ export const metadata: Metadata = {
     "Next.js",
   ],
 
-  authors: [{ name: "Your Name" }],
-  creator: "Your Name",
-  applicationName: "Your App Name",
+  authors: [{ name: "labourbaba" }],
+  creator: "labourbaba",
+  applicationName: "labourbaba",
 
   icons: {
     icon: "/logo.png",
     shortcut: "/favicon.ico",
-    apple: "/apple-touch-icon.png",
   },
 
   openGraph: {
-    title: "Your App Name",
+    title: "labourbaba - Find Trusted Workers and Skilled Professionals",
     description:
       "Book trusted workers and skilled professionals near you.",
-    url: "https://yourdomain.com",
-    siteName: "Your App Name",
+    url: "https://labourbaba.in/",
+    siteName: "labourbaba",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Your App Name",
+        alt: "labourbaba",
       },
     ],
     locale: "en_US",
@@ -60,7 +60,7 @@ export const metadata: Metadata = {
 
   twitter: {
     card: "summary_large_image",
-    title: "Your App Name",
+    title: "labourbaba",
     description:
       "Book trusted workers and skilled professionals near you.",
     images: ["/og-image.png"],

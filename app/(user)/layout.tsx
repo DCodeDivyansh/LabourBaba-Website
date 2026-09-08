@@ -1,3 +1,4 @@
+'use client";'
 import { getCurrentClient } from "@/lib/api/client";
 import { getCustomerId } from "@/lib/api/auth";
 import AuthHydrator from "@/features/auth/AuthHydrator";

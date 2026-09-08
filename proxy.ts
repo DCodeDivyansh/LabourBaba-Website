@@ -17,7 +17,6 @@ const USER_ROUTES = [
   "/alerts",
   "/reviews",
   "/help",
-  "/WorkerProfile",
 ];
 
 // The admin dashboard has no login of its own yet; keep it behind the same

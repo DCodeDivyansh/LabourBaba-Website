@@ -7,6 +7,8 @@ import { Check } from "lucide-react";
 import CommonHeader from "@/components/CommonHeader";
 import LoadingSpinner from "@/components/LoadingSpinner";
 
+// Keep Leaflet and react-leaflet out of the application bundle until this
+// route is rendered in the browser.
 const MapPicker = dynamic(() => import("@/components/MapPicker"), {
   ssr: false,
   loading: () => <LoadingSpinner message="Loading Map..." />,
